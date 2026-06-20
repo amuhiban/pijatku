@@ -26,10 +26,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import org.osmdroid.views.overlay.Marker
+import org.osmdroid.util.GeoPoint
 import com.example.R
 import com.example.data.OrderEntity
 import com.example.ui.PijatKuViewModel
@@ -41,6 +39,15 @@ import com.example.ui.theme.EmeraldGreenLight
 import com.example.ui.theme.TextDark
 import java.text.NumberFormat
 import java.util.Locale
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLEncoder
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import org.json.JSONArray
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1151,14 +1158,103 @@ fun CustomerScreen(
         // Render List
         if (showMapMode) {
             item {
+                var mapSearchText by remember { mutableStateOf("") }
+                var isSearchingMap by remember { mutableStateOf(false) }
+                var searchError by remember { mutableStateOf<String?>(null) }
+                val scope = rememberCoroutineScope()
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(350.dp)
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
+                    // Search Bar
+                    OutlinedTextField(
+                        value = mapSearchText,
+                        onValueChange = { 
+                            mapSearchText = it
+                            searchError = null
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Cari Lokasi Alamat") },
+                        placeholder = { Text("Contoh: Monas, Jakarta") },
+                        leadingIcon = {
+                            Icon(Icons.Default.Search, contentDescription = "Ikon Cari")
+                        },
+                        trailingIcon = {
+                            if (mapSearchText.isNotEmpty()) {
+                                IconButton(onClick = { mapSearchText = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Bersihkan")
+                                }
+                            }
+                        },
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = NavyPrimary,
+                            focusedLabelColor = NavyPrimary,
+                            cursorColor = NavyPrimary
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (isSearchingMap) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    color = NavyPrimary,
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Mencari...", fontSize = 12.sp, color = Color.Gray)
+                            }
+                        } else if (searchError != null) {
+                            Text(
+                                text = searchError ?: "",
+                                color = MaterialTheme.colorScheme.error,
+                                fontSize = 12.sp,
+                                modifier = Modifier.weight(1f)
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+
+                        Button(
+                            onClick = {
+                                if (mapSearchText.isNotBlank()) {
+                                    scope.launch {
+                                        isSearchingMap = true
+                                        searchError = null
+                                        val result = geocodeAddress(mapSearchText)
+                                        isSearchingMap = false
+                                        if (result != null) {
+                                            viewModel.customerLat.value = result.first
+                                            viewModel.customerLng.value = result.second
+                                        } else {
+                                            searchError = "Lokasi tidak ditemukan!"
+                                        }
+                                    }
+                                }
+                            },
+                            enabled = !isSearchingMap && mapSearchText.isNotBlank(),
+                            colors = ButtonDefaults.buttonColors(containerColor = NavyPrimary),
+                            modifier = Modifier.padding(start = 8.dp)
+                        ) {
+                            Text("Cari", color = Color.White)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     Card(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp),
                         shape = RoundedCornerShape(16.dp),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
@@ -1168,49 +1264,47 @@ fun CustomerScreen(
                             val userLngFlow = viewModel.customerLng.collectAsState().value
 
                             AndroidView(
-                                factory = { mapView },
+                                factory = { 
+                                    mapView.apply {
+                                        setMultiTouchControls(true)
+                                    }
+                                },
                                 modifier = Modifier.fillMaxSize(),
                                 update = { map ->
-                                    map.getMapAsync { googleMap ->
-                                        googleMap.clear()
-                                        googleMap.uiSettings.isZoomControlsEnabled = true
-                                        
-                                        val userLoc = LatLng(userLatFlow, userLngFlow)
-                                        googleMap.addMarker(
-                                            MarkerOptions()
-                                                .position(userLoc)
-                                                .title("Lokasi Saya")
-                                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                                        )
-                                        
-                                        filteredTherapists.forEach { therapist ->
-                                            val hash = therapist.id.hashCode().toDouble() / Int.MAX_VALUE
-                                            val tLat = userLatFlow + hash * 0.012
-                                            val tLng = userLngFlow + Math.sin(hash) * 0.012
-                                            val tLoc = LatLng(tLat, tLng)
-                                            
-                                            googleMap.addMarker(
-                                                MarkerOptions()
-                                                    .position(tLoc)
-                                                    .title(therapist.name)
-                                                    .snippet("Rating: ${therapist.rating} ★ (${therapist.totalReviews} ulasan)")
-                                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                                            )
-                                        }
-                                        
-                                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLoc, 13f))
-                                        
-                                        googleMap.setOnMarkerClickListener { marker ->
-                                            val clickedName = marker.title
-                                            if (clickedName != "Lokasi Saya") {
-                                                val clickedTherapist = filteredTherapists.firstOrNull { it.name == clickedName }
-                                                if (clickedTherapist != null) {
-                                                    selectedMapTherapist = clickedTherapist
-                                                }
-                                            }
-                                            false
-                                        }
+                                    map.overlays.clear()
+                                    
+                                    val userPoint = GeoPoint(userLatFlow, userLngFlow)
+                                    val userMarker = Marker(map).apply {
+                                        position = userPoint
+                                        title = "Lokasi Saya"
+                                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                                     }
+                                    map.overlays.add(userMarker)
+                                    
+                                    filteredTherapists.forEach { therapist ->
+                                        val hash = therapist.id.hashCode().toDouble() / Int.MAX_VALUE
+                                        val tLat = userLatFlow + hash * 0.012
+                                        val tLng = userLngFlow + Math.sin(hash) * 0.012
+                                        val tPoint = GeoPoint(tLat, tLng)
+                                        
+                                        val therapistMarker = Marker(map).apply {
+                                            position = tPoint
+                                            title = therapist.name
+                                            subDescription = "Rating: ${therapist.rating} ★ (${therapist.totalReviews} ulasan)"
+                                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                                            
+                                            setOnMarkerClickListener { marker, _ ->
+                                                selectedMapTherapist = therapist
+                                                marker.showInfoWindow()
+                                                true
+                                            }
+                                        }
+                                        map.overlays.add(therapistMarker)
+                                    }
+                                    
+                                    map.controller.setCenter(userPoint)
+                                    map.controller.setZoom(13.5)
+                                    map.invalidate()
                                 }
                             )
                         }

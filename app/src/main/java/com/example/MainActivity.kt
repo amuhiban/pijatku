@@ -48,6 +48,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Initialize osmdroid configuration to avoid getting blocked by OSM server
+        org.osmdroid.config.Configuration.getInstance().userAgentValue = packageName
+        org.osmdroid.config.Configuration.getInstance().load(
+            applicationContext,
+            android.preference.PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        )
+
         com.example.data.FirebaseSyncManager.initialize(applicationContext)
         
         // Request POST_NOTIFICATIONS permission for Android 13+

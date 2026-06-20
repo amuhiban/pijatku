@@ -26,12 +26,10 @@ import com.example.ui.theme.MintGreen
 import com.example.ui.theme.NavyPrimary
 import com.example.ui.theme.NavySecondary
 import com.example.ui.theme.AccentGold
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.MapView
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
-import com.google.android.gms.maps.model.MarkerOptions
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.util.BoundingBox
 
 @Composable
 fun rememberMapViewWithLifecycle(): MapView {
@@ -46,6 +44,7 @@ fun rememberMapViewWithLifecycle(): MapView {
         lifecycle.addObserver(lifecycleObserver)
         onDispose {
             lifecycle.removeObserver(lifecycleObserver)
+            mapView.onDetach()
         }
     }
 
@@ -57,12 +56,8 @@ fun rememberMapLifecycleObserver(mapView: MapView): LifecycleEventObserver =
     remember(mapView) {
         LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_CREATE -> mapView.onCreate(Bundle())
-                Lifecycle.Event.ON_START -> mapView.onStart()
                 Lifecycle.Event.ON_RESUME -> mapView.onResume()
                 Lifecycle.Event.ON_PAUSE -> mapView.onPause()
-                Lifecycle.Event.ON_STOP -> mapView.onStop()
-                Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
                 else -> {}
             }
         }
@@ -89,41 +84,52 @@ fun SimpleInteractiveMap(
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
-                factory = { mapView },
+                factory = { 
+                    mapView.apply {
+                        setMultiTouchControls(true)
+                    }
+                },
                 modifier = Modifier.fillMaxSize(),
                 update = { map ->
-                    map.getMapAsync { googleMap ->
-                        googleMap.clear()
-                        googleMap.uiSettings.isZoomControlsEnabled = true
-                        
-                        val customerLoc = LatLng(customerLat, customerLng)
-                        
-                        googleMap.addMarker(
-                            MarkerOptions()
-                                .position(customerLoc)
-                                .title("Lokasi Saya")
-                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                        )
-                        
-                        if (status != "MENUNGGU" && status != "SELESAI" && status != "BATAL") {
-                            val therapistLoc = LatLng(therapistLat, therapistLng)
-                            googleMap.addMarker(
-                                MarkerOptions()
-                                    .position(therapistLoc)
-                                    .title("Terapis: $therapistName")
-                                    .snippet("Status: $status")
-                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                            )
-                            
-                            val bounds = LatLngBounds.Builder()
-                                .include(customerLoc)
-                                .include(therapistLoc)
-                                .build()
-                            googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 60))
-                        } else {
-                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(customerLoc, 14f))
-                        }
+                    map.overlays.clear()
+                    
+                    val customerPoint = GeoPoint(customerLat, customerLng)
+                    val customerMarker = Marker(map).apply {
+                        position = customerPoint
+                        title = "Lokasi Saya"
+                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                     }
+                    map.overlays.add(customerMarker)
+                    
+                    if (status != "MENUNGGU" && status != "SELESAI" && status != "BATAL") {
+                        val therapistPoint = GeoPoint(therapistLat, therapistLng)
+                        val therapistMarker = Marker(map).apply {
+                            position = therapistPoint
+                            title = "Terapis: $therapistName"
+                            subDescription = "Status: $status"
+                            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                        }
+                        map.overlays.add(therapistMarker)
+                        
+                        val maxLat = maxOf(customerLat, therapistLat)
+                        val minLat = minOf(customerLat, therapistLat)
+                        val maxLng = maxOf(customerLng, therapistLng)
+                        val minLng = minOf(customerLng, therapistLng)
+                        val latPadding = maxOf((maxLat - minLat) * 0.25, 0.005)
+                        val lngPadding = maxOf((maxLng - minLng) * 0.25, 0.005)
+                        
+                        val box = BoundingBox(
+                            maxLat + latPadding,
+                            maxLng + lngPadding,
+                            minLat - latPadding,
+                            minLng - lngPadding
+                        )
+                        map.zoomToBoundingBox(box, true)
+                    } else {
+                        map.controller.setCenter(customerPoint)
+                        map.controller.setZoom(15.0)
+                    }
+                    map.invalidate()
                 }
             )
 
