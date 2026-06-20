@@ -32,12 +32,16 @@ import com.example.ui.theme.*
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.example.data.FirebaseSyncManager.initialize(applicationContext)
         enableEdgeToEdge()
         setContent {
             // State for manual theme overrules (Dark Mode vs Light Mode)
             var isDarkModeManual by remember { mutableStateOf(false) }
             // State for manual language overrules ("ID" vs "EN")
             var currentLanguage by remember { mutableStateOf("ID") }
+
+            // Set to true to show the role-switching simulator at the bottom, or false for production APK
+            val isPreview = false
 
             PijatKuTheme(darkTheme = isDarkModeManual) {
                 val viewModel: PijatKuViewModel = viewModel()
@@ -47,99 +51,101 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
-                        // Floating bottom bar selector to play Customer, Therapist, and Admin roles
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp)
-                                .windowInsetsPadding(WindowInsets.navigationBars)
-                                .shadow(8.dp, RoundedCornerShape(18.dp)),
-                            shape = RoundedCornerShape(18.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surface
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(vertical = 10.dp, horizontal = 14.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = if (currentLanguage == "ID") "PROYEK SIMULASI PIJATKU - GANTI ROLE MITRA" else "PIJATKU SIMULATION - SWITCH ROLES",
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    color = MintGreen
+                        if (isPreview) {
+                            // Floating bottom bar selector to play Customer, Therapist, and Admin roles
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp)
+                                    .windowInsetsPadding(WindowInsets.navigationBars)
+                                    .shadow(8.dp, RoundedCornerShape(18.dp)),
+                                shape = RoundedCornerShape(18.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
                                 )
-                                Spacer(modifier = Modifier.height(6.dp))
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(vertical = 10.dp, horizontal = 14.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    // 1. Customer Role play (Ahmad)
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .clickable { viewModel.loginAs("cust_ahmad") }
-                                            .background(if (currentRole == "CUSTOMER") MintGreen.copy(alpha = 0.15f) else Color.Transparent)
-                                            .padding(horizontal = 10.dp, vertical = 6.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Person,
-                                            tint = if (currentRole == "CUSTOMER") MintGreen else Color.Gray,
-                                            contentDescription = "Customer"
-                                        )
-                                        Text(
-                                            text = if (currentLanguage == "ID") "Pelanggan" else "Client",
-                                            fontSize = 11.sp,
-                                            fontWeight = if (currentRole == "CUSTOMER") FontWeight.Bold else FontWeight.Normal,
-                                            color = if (currentRole == "CUSTOMER") MintGreen else Color.Gray
-                                        )
-                                    }
+                                    Text(
+                                        text = if (currentLanguage == "ID") "PROYEK SIMULASI PIJATKU - GANTI ROLE MITRA" else "PIJATKU SIMULATION - SWITCH ROLES",
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = MintGreen
+                                    )
+                                    Spacer(modifier = Modifier.height(6.dp))
 
-                                    // 2. Therapist Role play (Budi)
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .clickable { viewModel.loginAs("therapist_budi") }
-                                            .background(if (currentRole == "THERAPIST") MintGreen.copy(alpha = 0.15f) else Color.Transparent)
-                                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.Default.MedicalServices,
-                                            tint = if (currentRole == "THERAPIST") MintGreen else Color.Gray,
-                                            contentDescription = "Therapist"
-                                        )
-                                        Text(
-                                            text = if (currentLanguage == "ID") "Terapis (Budi)" else "Therapist (Budi)",
-                                            fontSize = 11.sp,
-                                            fontWeight = if (currentRole == "THERAPIST") FontWeight.Bold else FontWeight.Normal,
-                                            color = if (currentRole == "THERAPIST") MintGreen else Color.Gray
-                                        )
-                                    }
+                                        // 1. Customer Role play (Ahmad)
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .clickable { viewModel.loginAs("cust_ahmad") }
+                                                .background(if (currentRole == "CUSTOMER") MintGreen.copy(alpha = 0.15f) else Color.Transparent)
+                                                .padding(horizontal = 10.dp, vertical = 6.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Person,
+                                                tint = if (currentRole == "CUSTOMER") MintGreen else Color.Gray,
+                                                contentDescription = "Customer"
+                                            )
+                                            Text(
+                                                text = if (currentLanguage == "ID") "Pelanggan" else "Client",
+                                                fontSize = 11.sp,
+                                                fontWeight = if (currentRole == "CUSTOMER") FontWeight.Bold else FontWeight.Normal,
+                                                color = if (currentRole == "CUSTOMER") MintGreen else Color.Gray
+                                            )
+                                        }
 
-                                    // 3. Admin Controller (Admin)
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .clickable { viewModel.loginAs("admin_utama") }
-                                            .background(if (currentRole == "ADMIN") MintGreen.copy(alpha = 0.15f) else Color.Transparent)
-                                            .padding(horizontal = 10.dp, vertical = 6.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Settings,
-                                            tint = if (currentRole == "ADMIN") MintGreen else Color.Gray,
-                                            contentDescription = "Admin"
-                                        )
-                                        Text(
-                                            text = "Admin",
-                                            fontSize = 11.sp,
-                                            fontWeight = if (currentRole == "ADMIN") FontWeight.Bold else FontWeight.Normal,
-                                            color = if (currentRole == "ADMIN") MintGreen else Color.Gray
-                                        )
+                                        // 2. Therapist Role play (Budi)
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .clickable { viewModel.loginAs("therapist_budi") }
+                                                .background(if (currentRole == "THERAPIST") MintGreen.copy(alpha = 0.15f) else Color.Transparent)
+                                                .padding(horizontal = 10.dp, vertical = 6.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.MedicalServices,
+                                                tint = if (currentRole == "THERAPIST") MintGreen else Color.Gray,
+                                                contentDescription = "Therapist"
+                                            )
+                                            Text(
+                                                text = if (currentLanguage == "ID") "Terapis (Budi)" else "Therapist (Budi)",
+                                                fontSize = 11.sp,
+                                                fontWeight = if (currentRole == "THERAPIST") FontWeight.Bold else FontWeight.Normal,
+                                                color = if (currentRole == "THERAPIST") MintGreen else Color.Gray
+                                            )
+                                        }
+
+                                        // 3. Admin Controller (Admin)
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .clickable { viewModel.loginAs("admin_utama") }
+                                                .background(if (currentRole == "ADMIN") MintGreen.copy(alpha = 0.15f) else Color.Transparent)
+                                                .padding(horizontal = 10.dp, vertical = 6.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Settings,
+                                                tint = if (currentRole == "ADMIN") MintGreen else Color.Gray,
+                                                contentDescription = "Admin"
+                                            )
+                                            Text(
+                                                text = "Admin",
+                                                fontSize = 11.sp,
+                                                fontWeight = if (currentRole == "ADMIN") FontWeight.Bold else FontWeight.Normal,
+                                                color = if (currentRole == "ADMIN") MintGreen else Color.Gray
+                                            )
+                                        }
                                     }
                                 }
                             }

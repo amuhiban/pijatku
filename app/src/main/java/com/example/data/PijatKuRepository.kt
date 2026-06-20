@@ -24,25 +24,72 @@ class PijatKuRepository(private val db: AppDatabase) {
     suspend fun getOrderSync(id: Int) = daos.getOrderSync(id)
 
     // Writers
-    suspend fun insertUser(user: UserEntity) = daos.insertUser(user)
-    suspend fun updateTherapistOnlineStatus(id: String, isOnline: Boolean) = daos.updateTherapistOnlineStatus(id, isOnline)
-    suspend fun updateUserBalance(id: String, balance: Double) = daos.updateUserBalance(id, balance)
-    suspend fun updateTherapistStatus(id: String, status: String) = daos.updateTherapistStatus(id, status)
-    suspend fun updateUserProfile(id: String, name: String, email: String, phone: String, imageUrl: String) =
+    suspend fun insertUser(user: UserEntity) {
+        daos.insertUser(user)
+        FirebaseSyncManager.syncUser(user)
+    }
+    suspend fun updateTherapistOnlineStatus(id: String, isOnline: Boolean) {
+        daos.updateTherapistOnlineStatus(id, isOnline)
+        daos.getUserSync(id)?.let { FirebaseSyncManager.syncUser(it) }
+    }
+    suspend fun updateUserBalance(id: String, balance: Double) {
+        daos.updateUserBalance(id, balance)
+        daos.getUserSync(id)?.let { FirebaseSyncManager.syncUser(it) }
+    }
+    suspend fun updateTherapistStatus(id: String, status: String) {
+        daos.updateTherapistStatus(id, status)
+        daos.getUserSync(id)?.let { FirebaseSyncManager.syncUser(it) }
+    }
+    suspend fun updateUserProfile(id: String, name: String, email: String, phone: String, imageUrl: String) {
         daos.updateUserProfile(id, name, email, phone, imageUrl)
+        daos.getUserSync(id)?.let { FirebaseSyncManager.syncUser(it) }
+    }
 
-    suspend fun insertOrder(order: OrderEntity): Long = daos.insertOrder(order)
-    suspend fun updateOrderStatus(id: Int, status: String) = daos.updateOrderStatus(id, status)
-    suspend fun rateOrder(id: Int, rating: Int, comment: String) = daos.rateOrder(id, rating, comment)
-    suspend fun updateOrderPaymentStatus(id: Int, pStatus: String) = daos.updateOrderPaymentStatus(id, pStatus)
+    suspend fun insertOrder(order: OrderEntity): Long {
+        val rowId = daos.insertOrder(order)
+        val savedOrder = if (order.id == 0) {
+            order.copy(id = rowId.toInt())
+        } else {
+            order
+        }
+        FirebaseSyncManager.syncOrder(savedOrder)
+        return rowId
+    }
+    suspend fun updateOrderStatus(id: Int, status: String) {
+        daos.updateOrderStatus(id, status)
+        daos.getOrderSync(id)?.let { FirebaseSyncManager.syncOrder(it) }
+    }
+    suspend fun rateOrder(id: Int, rating: Int, comment: String) {
+        daos.rateOrder(id, rating, comment)
+        daos.getOrderSync(id)?.let { FirebaseSyncManager.syncOrder(it) }
+    }
+    suspend fun updateOrderPaymentStatus(id: Int, pStatus: String) {
+        daos.updateOrderPaymentStatus(id, pStatus)
+        daos.getOrderSync(id)?.let { FirebaseSyncManager.syncOrder(it) }
+    }
 
-    suspend fun insertChatMessage(msg: ChatMessageEntity) = daos.insertChatMessage(msg)
+    suspend fun insertChatMessage(msg: ChatMessageEntity) {
+        daos.insertChatMessage(msg)
+        FirebaseSyncManager.syncChatMessage(msg)
+    }
     suspend fun getVoucherSync(code: String) = daos.getVoucherSync(code)
-    suspend fun insertVoucher(voucher: VoucherEntity) = daos.insertVoucher(voucher)
-    suspend fun deleteVoucher(code: String) = daos.deleteVoucher(code)
+    suspend fun insertVoucher(voucher: VoucherEntity) {
+        daos.insertVoucher(voucher)
+        FirebaseSyncManager.syncVoucher(voucher)
+    }
+    suspend fun deleteVoucher(code: String) {
+        daos.deleteVoucher(code)
+        FirebaseSyncManager.deleteVoucher(code)
+    }
 
-    suspend fun insertConfig(config: ConfigEntity) = daos.insertConfig(config)
-    suspend fun insertNotification(notif: NotificationEntity) = daos.insertNotification(notif)
+    suspend fun insertConfig(config: ConfigEntity) {
+        daos.insertConfig(config)
+        FirebaseSyncManager.syncConfig(config)
+    }
+    suspend fun insertNotification(notif: NotificationEntity) {
+        daos.insertNotification(notif)
+        FirebaseSyncManager.syncNotification(notif)
+    }
 
     // Auto seed data on first run
     suspend fun checkAndSeedInitialData() {

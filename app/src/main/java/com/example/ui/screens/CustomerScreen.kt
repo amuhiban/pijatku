@@ -64,10 +64,27 @@ fun CustomerScreen(
 
     val currencyFormatter = NumberFormat.getCurrencyInstance(Locale("in", "ID"))
 
+    var useDemoMode by remember { mutableStateOf(false) }
+    val isLoggedInWithFirebase = user != null && user?.id != "cust_ahmad"
+
+    if (!isLoggedInWithFirebase && !useDemoMode) {
+        FirebaseAuthScreen(
+            viewModel = viewModel,
+            onDemoModeClick = {
+                useDemoMode = true
+                viewModel.loginAs("cust_ahmad")
+            }
+        )
+        return
+    }
+
     // Safe top-level extraction of recently completed unrated order
     val completedUnratedOrder = allOrdersVal.firstOrNull { 
-        it.customerId == "cust_ahmad" && it.status == "SELESAI" && it.rating == 0 
+        it.customerId == (user?.id ?: "") && it.status == "SELESAI" && it.rating == 0 
     }
+
+    var showOnlyActive by remember { mutableStateOf(false) }
+    val filteredTherapists = if (showOnlyActive) therapists.filter { it.isOnline } else therapists
 
     LazyColumn(
         modifier = modifier
@@ -124,23 +141,41 @@ fun CustomerScreen(
                             }
                         }
 
-                        // Notification Icon with badge
-                        Box {
-                            IconButton(onClick = { showNotifications = !showNotifications }) {
-                                Icon(
-                                    imageVector = if (notifications.isNotEmpty()) Icons.Default.NotificationsActive else Icons.Default.Notifications,
-                                    tint = if (notifications.isNotEmpty()) MintGreen else Color.White,
-                                    contentDescription = "Notifikasi"
-                                )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            // Notification Icon with badge
+                            Box {
+                                IconButton(onClick = { showNotifications = !showNotifications }) {
+                                    Icon(
+                                        imageVector = if (notifications.isNotEmpty()) Icons.Default.NotificationsActive else Icons.Default.Notifications,
+                                        tint = if (notifications.isNotEmpty()) MintGreen else Color.White,
+                                        contentDescription = "Notifikasi"
+                                    )
+                                }
+                                if (notifications.isNotEmpty()) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(10.dp)
+                                            .background(Color.Red, CircleShape)
+                                            .align(Alignment.TopEnd)
+                                            .offset(x = (-4).dp, y = 4.dp)
+                                    )
+                                }
                             }
-                            if (notifications.isNotEmpty()) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(10.dp)
-                                        .background(Color.Red, CircleShape)
-                                        .align(Alignment.TopEnd)
-                                        .offset(x = (-4).dp, y = 4.dp)
-                                )
+
+                            if (isLoggedInWithFirebase) {
+                                Spacer(modifier = Modifier.width(6.dp))
+                                IconButton(
+                                    onClick = {
+                                        useDemoMode = false
+                                        viewModel.logout()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.ExitToApp,
+                                        tint = Color.White,
+                                        contentDescription = "Keluar Firebase"
+                                    )
+                                }
                             }
                         }
                     }
@@ -766,18 +801,87 @@ fun CustomerScreen(
             }
         }
 
-        // 6. Nearby Therapists
+        // 6. Nearby Therapists List Component
         item {
-            Text(
-                text = "Terapis Terdekat yang Aktif",
-                fontWeight = FontWeight.Bold,
-                fontSize = 15.sp,
-                color = NavyPrimary,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
-            )
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
+                Text(
+                    text = "Daftar Terapis Profesional PijatKu 💆‍♂️",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    color = NavyPrimary
+                )
+                Text(
+                    text = "Terapis berlisensi, bersertifikat resmi, dengan ulasan terpercaya",
+                    fontSize = 11.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(vertical = 2.dp)
+                )
+            }
         }
 
-        if (therapists.none { it.isOnline }) {
+        // Horizontal filter buttons
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Filter 1: Semua
+                Card(
+                    modifier = Modifier
+                        .clickable { showOnlyActive = false }
+                        .shadow(if (!showOnlyActive) 2.dp else 0.dp, RoundedCornerShape(20.dp)),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (!showOnlyActive) NavyPrimary else Color.White
+                    ),
+                    border = if (showOnlyActive) BorderStroke(1.dp, Color.LightGray) else null
+                ) {
+                    Text(
+                        text = "Semua Terapis (${therapists.size})",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (!showOnlyActive) Color.White else Color.Gray,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    )
+                }
+
+                // Filter 2: Hanya yang Aktif
+                val activeCount = therapists.count { it.isOnline }
+                Card(
+                    modifier = Modifier
+                        .clickable { showOnlyActive = true }
+                        .shadow(if (showOnlyActive) 2.dp else 0.dp, RoundedCornerShape(20.dp)),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (showOnlyActive) NavyPrimary else Color.White
+                    ),
+                    border = if (!showOnlyActive) BorderStroke(1.dp, Color.LightGray) else null
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .background(MintGreen, CircleShape)
+                        )
+                        Text(
+                            text = "Aktif Online ($activeCount)",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (showOnlyActive) Color.White else Color.Gray
+                        )
+                    }
+                }
+            }
+        }
+
+        // Render List
+        if (filteredTherapists.isEmpty()) {
             item {
                 Card(
                     modifier = Modifier
@@ -787,7 +891,7 @@ fun CustomerScreen(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
-                        text = "Maaf, semua terapis kami sedang melayani pelanggan lain atau offline.",
+                        text = if (showOnlyActive) "Maaf, saat ini tidak ada terapis aktif online." else "Maaf, belum ada mitra terapis yang terdaftar saat ini.",
                         color = Color.Gray,
                         fontSize = 12.sp,
                         textAlign = TextAlign.Center,
@@ -796,94 +900,204 @@ fun CustomerScreen(
                 }
             }
         } else {
-            items(therapists.filter { it.isOnline }) { therapist ->
+            items(filteredTherapists) { therapist ->
+                // Dynamic specialty & description based on therapist name
+                val specialty = when {
+                    therapist.name.contains("Budi", ignoreCase = true) -> "Pijat Tradisional Jawa, Urut Capek, Refleksi Saraf Kaki"
+                    therapist.name.contains("Ani", ignoreCase = true) -> "Pijat Ibu & Anak, Totok Aura Wajah, Pijat Relaksasi Swedia"
+                    therapist.name.contains("Joko", ignoreCase = true) -> "Pijat Aromaterapi Kesehatan, Bekam Kering, Deep Tissue Therapy"
+                    else -> "Terapi Kebal Pegal, Pijat Kebugaran, Kop Masuk Angin"
+                }
+
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 6.dp)
-                        .shadow(1.dp, RoundedCornerShape(12.dp))
-                        .clickable {
-                            viewModel.selectedTherapist.value = therapist
-                            if (viewModel.selectedService.value == null) {
-                                viewModel.selectedService.value = viewModel.services.first()
-                            }
-                            showBookingForm = true
-                        },
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .shadow(2.dp, RoundedCornerShape(16.dp)),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(16.dp)
                 ) {
-                    Row(
+                    Column(
                         modifier = Modifier
-                            .padding(12.dp)
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(14.dp)
+                            .fillMaxWidth()
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(50.dp)
-                                .background(Color(0xFFF1F5F9), CircleShape),
-                            contentAlignment = Alignment.Center
+                        Row(
+                            verticalAlignment = Alignment.Top,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.MedicalServices,
-                                tint = MintGreen,
-                                contentDescription = "Terapis"
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(12.dp))
-
-                        Column(modifier = Modifier.weight(1f)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = therapist.name,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 13.sp,
-                                    color = NavyPrimary
+                            // Avatar Layout with Available Badge
+                            Box(modifier = Modifier.size(54.dp)) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(
+                                            brush = Brush.linearGradient(
+                                                colors = listOf(NavyPrimary.copy(alpha = 0.1f), MintGreen.copy(alpha = 0.15f))
+                                            ),
+                                            shape = CircleShape
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = therapist.name.take(1),
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 18.sp,
+                                        color = NavyPrimary
+                                    )
+                                }
+                                
+                                // Glowing Online Badge
+                                Box(
+                                    modifier = Modifier
+                                        .size(12.dp)
+                                        .background(if (therapist.isOnline) MintGreen else Color.Gray, CircleShape)
+                                        .border(2.dp, Color.White, CircleShape)
+                                        .align(Alignment.BottomEnd)
                                 )
-                                Spacer(modifier = Modifier.width(6.dp))
+                            }
+
+                            Spacer(modifier = Modifier.width(14.dp))
+
+                            // Therapist Info
+                            Column(modifier = Modifier.weight(1f)) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .background(
-                                            Color(0xFFFEF3C7),
-                                            RoundedCornerShape(4.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Text(
+                                        text = therapist.name,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp,
+                                        color = NavyPrimary
+                                    )
+                                    
+                                    // Certified Label
+                                    Box(
+                                        modifier = Modifier
+                                            .background(MintGreen.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                                            .padding(horizontal = 5.dp, vertical = 2.dp)
+                                    ) {
+                                        Text(
+                                            text = "Mitra Pro",
+                                            fontSize = 9.sp,
+                                            fontWeight = FontWeight.ExtraBold,
+                                            color = NavyPrimary
                                         )
-                                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(2.dp))
+
+                                // Ratings and Reviews ulasan count
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Star,
                                         contentDescription = "Rating",
                                         tint = AccentGold,
-                                        modifier = Modifier.size(10.dp)
+                                        modifier = Modifier.size(12.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(2.dp))
                                     Text(
                                         text = "%.1f".format(therapist.rating).replace(",", "."),
-                                        fontSize = 9.sp,
+                                        fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.Black
                                     )
+                                    Text(
+                                        text = "• ${therapist.totalReviews} ulasan",
+                                        fontSize = 11.sp,
+                                        color = Color.Gray
+                                    )
+                                    Text(
+                                        text = "• ${therapist.customerCount} order",
+                                        fontSize = 11.sp,
+                                        color = Color.Gray
+                                    )
                                 }
+
+                                Spacer(modifier = Modifier.height(6.dp))
+
+                                // Expertise
+                                Text(
+                                    text = "Keahlian Spesialis:",
+                                    fontSize = 10.sp,
+                                    color = Color.Gray,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = specialty,
+                                    fontSize = 11.sp,
+                                    color = NavySecondary,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.padding(top = 1.dp)
+                                )
                             }
-                            Text(
-                                text = "Layanan Terdekat • Siap Meluncur",
-                                fontSize = 11.sp,
-                                color = Color.Gray
-                            )
-                            Text(
-                                text = "Spesialis: Kebal Pegal & Refleksi",
-                                fontSize = 10.sp,
-                                color = NavySecondary,
-                                fontWeight = FontWeight.SemiBold
-                            )
                         }
 
-                        Icon(
-                            imageVector = Icons.Default.ChevronRight,
-                            tint = Color.Gray,
-                            contentDescription = "Pilih"
+                        Divider(
+                            modifier = Modifier.padding(vertical = 10.dp),
+                            color = Color.LightGray.copy(alpha = 0.4f)
                         )
+
+                        // Base Pricing and Order Button Row
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text(
+                                    text = "Tarif Layanan",
+                                    fontSize = 9.sp,
+                                    color = Color.Gray,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Mulai Rp 100.000",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = Color(0xFF16A34A)
+                                )
+                            }
+
+                            // Explicit 'Order Now' button
+                            val isAvailable = therapist.isOnline
+                            Button(
+                                onClick = {
+                                    viewModel.selectedTherapist.value = therapist
+                                    if (viewModel.selectedService.value == null) {
+                                        viewModel.selectedService.value = viewModel.services.first()
+                                    }
+                                    showBookingForm = true
+                                },
+                                shape = RoundedCornerShape(10.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (isAvailable) MintGreen else Color.LightGray,
+                                    contentColor = if (isAvailable) Color.White else Color.DarkGray
+                                ),
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                                modifier = Modifier.height(36.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.MedicalServices,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Text(
+                                        text = if (isAvailable) "Pesan Sekarang" else "Offline / Sibuk",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1208,5 +1422,285 @@ fun CustomerScreen(
                 }
             }
         )
+    }
+}
+
+@Composable
+fun FirebaseAuthScreen(
+    viewModel: PijatKuViewModel,
+    onDemoModeClick: () -> Unit
+) {
+    var isSignUp by remember { mutableStateOf(false) }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var referralCode by remember { mutableStateOf("") }
+    
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var successMessage by remember { mutableStateOf<String?>(null) }
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(NavyPrimary, NavySecondary)
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        // Decorative background elements
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(vertical = 16.dp)
+                    .shadow(16.dp, RoundedCornerShape(24.dp)),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Application Logo / Header
+                    Icon(
+                        imageVector = Icons.Default.MedicalServices,
+                        contentDescription = "PijatKu Logo",
+                        tint = MintGreen,
+                        modifier = Modifier
+                            .size(64.dp)
+                            .background(MintGreen.copy(alpha = 0.1f), CircleShape)
+                            .padding(12.dp)
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = if (isSignUp) "Daftar Akun PijatKu" else "Masuk ke PijatKu",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = NavyPrimary
+                    )
+                    Text(
+                        text = if (isSignUp) "Hubungkan langsung dengan Firebase Authentication" else "Masukkan detail akun Firebase Anda",
+                        fontSize = 12.sp,
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    )
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    if (errorMessage != null) {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFEE2E2)),
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                        ) {
+                            Text(
+                                text = errorMessage ?: "",
+                                color = Color(0xFF7F1D1D),
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(12.dp),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+
+                    if (successMessage != null) {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFD1FAE5)),
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                        ) {
+                            Text(
+                                text = successMessage ?: "",
+                                color = Color(0xFF065F46),
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(12.dp),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+
+                    // Form Fields
+                    if (isSignUp) {
+                        OutlinedTextField(
+                            value = name,
+                            onValueChange = { name = it },
+                            label = { Text("Nama Lengkap") },
+                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = NavyPrimary) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        OutlinedTextField(
+                            value = phone,
+                            onValueChange = { phone = it },
+                            label = { Text("Nomor Telepon") },
+                            leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = NavyPrimary) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
+
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        label = { Text("Alamat Email") },
+                        leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = NavyPrimary) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("Kata Sandi") },
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = NavyPrimary) },
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    contentDescription = null
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        visualTransformation = if (passwordVisible) androidx.compose.ui.text.input.VisualTransformation.None else androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    if (isSignUp) {
+                        OutlinedTextField(
+                            value = referralCode,
+                            onValueChange = { referralCode = it },
+                            label = { Text("Kode Referral (Opsional)") },
+                            leadingIcon = { Icon(Icons.Default.CardGiftcard, contentDescription = null, tint = NavyPrimary) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    // Loading indicator / Action button
+                    if (isLoading) {
+                        CircularProgressIndicator(color = MintGreen, modifier = Modifier.padding(12.dp))
+                    } else {
+                        Button(
+                            onClick = {
+                                if (email.isBlank() || password.isBlank()) {
+                                    errorMessage = "Email dan password wajib diisi."
+                                    return@Button
+                                }
+                                if (isSignUp && name.isBlank()) {
+                                    errorMessage = "Nama wajib diisi untuk registrasi."
+                                    return@Button
+                                }
+                                isLoading = true
+                                errorMessage = null
+                                successMessage = null
+
+                                if (isSignUp) {
+                                    viewModel.registerWithFirebase(
+                                        email = email,
+                                        password = password,
+                                        name = name,
+                                        phone = phone,
+                                        referralCode = referralCode,
+                                        onSuccess = {
+                                            isLoading = false
+                                            successMessage = "Akun berhasil didaftarkan!"
+                                        },
+                                        onError = { error ->
+                                            isLoading = false
+                                            errorMessage = error
+                                        }
+                                    )
+                                } else {
+                                    viewModel.loginWithFirebase(
+                                        email = email,
+                                        password = password,
+                                        onSuccess = {
+                                            isLoading = false
+                                            successMessage = "Berhasil masuk!"
+                                        },
+                                        onError = { error ->
+                                            isLoading = false
+                                            errorMessage = error
+                                        }
+                                    )
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth().height(48.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = NavyPrimary)
+                        ) {
+                            Text(
+                                text = if (isSignUp) "DAFTAR SEKARANG" else "MASUK SECARA AMAN",
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Switch Mode Toggle
+                    TextButton(
+                        onClick = {
+                            isSignUp = !isSignUp
+                            errorMessage = null
+                            successMessage = null
+                        }
+                    ) {
+                        Text(
+                            text = if (isSignUp) "Sudah punya akun? Masuk di sini" else "Belum punya akun? Daftar gratis",
+                            color = NavyPrimary,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 13.sp
+                        )
+                    }
+
+                    val customBorder = BorderStroke(1.5.dp, MintGreen)
+                    Divider(
+                        modifier = Modifier.padding(vertical = 12.dp),
+                        color = Color.LightGray.copy(alpha = 0.5f)
+                    )
+
+                    // Skip / Bypass Button
+                    OutlinedButton(
+                        onClick = onDemoModeClick,
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        border = customBorder,
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MintGreen)
+                    ) {
+                        Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Gunakan Mode Simulasi Demo",
+                            fontWeight = FontWeight.Bold,
+                            color = MintGreen
+                        )
+                    }
+                }
+            }
+        }
     }
 }

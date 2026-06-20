@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.*
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -88,8 +89,37 @@ class PijatKuViewModel(application: Application) : AndroidViewModel(application)
     init {
         viewModelScope.launch {
             repository.checkAndSeedInitialData()
-            // Set first currentUser as customer by default
-            loginAs("cust_ahmad")
+            // Initial Firebase Sync and check authed user
+            val authUser = try {
+                FirebaseAuth.getInstance().currentUser
+            } catch (e: Exception) {
+                null
+            }
+            if (authUser != null) {
+                val dbUser = repository.getUserSync(authUser.uid)
+                if (dbUser != null) {
+                    currentUser.value = dbUser
+                    currentRole.value = dbUser.role
+                } else {
+                    val newUser = UserEntity(
+                        id = authUser.uid,
+                        role = "CUSTOMER",
+                        name = authUser.displayName ?: authUser.email?.substringBefore("@") ?: "Pelanggan PijatKu",
+                        email = authUser.email ?: "",
+                        phone = "",
+                        profileImageUrl = "cust_avatar",
+                        balance = 500000.0,
+                        referralCode = "REF-${authUser.uid.take(5).uppercase()}",
+                        status = "APPROVED"
+                    )
+                    repository.insertUser(newUser)
+                    currentUser.value = newUser
+                    currentRole.value = "CUSTOMER"
+                }
+            } else {
+                // Set first currentUser as customer by default
+                loginAs("cust_ahmad")
+            }
             observeNotifications()
             observeActiveOrder()
         }
@@ -104,6 +134,117 @@ class PijatKuViewModel(application: Application) : AndroidViewModel(application)
                 observeNotifications()
             }
         }
+    }
+
+    fun isUserLoggedInWithFirebase(): Boolean {
+        return try {
+            FirebaseAuth.getInstance().currentUser != null
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun registerWithFirebase(
+        email: String,
+        password: String,
+        name: String,
+        phone: String,
+        referralCode: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val authUser = task.result?.user
+                            if (authUser != null) {
+                                viewModelScope.launch {
+                                    val newUser = UserEntity(
+                                        id = authUser.uid,
+                                        role = "CUSTOMER",
+                                        name = name.ifBlank { authUser.email?.substringBefore("@") ?: "Pelanggan" },
+                                        email = email,
+                                        phone = phone,
+                                        profileImageUrl = "cust_avatar",
+                                        balance = 500000.0,
+                                        referralCode = referralCode.ifBlank { "REF-${authUser.uid.take(5).uppercase()}" },
+                                        status = "APPROVED"
+                                    )
+                                    repository.insertUser(newUser)
+                                    currentUser.value = newUser
+                                    currentRole.value = "CUSTOMER"
+                                    observeNotifications()
+                                    onSuccess()
+                                }
+                            } else {
+                                onError("Gagal mendapatkan data user setelah registrasi.")
+                            }
+                        } else {
+                            onError(task.exception?.localizedMessage ?: "Registrasi gagal.")
+                        }
+                    }
+            } catch (e: Exception) {
+                onError(e.localizedMessage ?: "Terjadi kesalahan.")
+            }
+        }
+    }
+
+    fun loginWithFirebase(
+        email: String,
+        password: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val authUser = task.result?.user
+                            if (authUser != null) {
+                                viewModelScope.launch {
+                                    var dbUser = repository.getUserSync(authUser.uid)
+                                    if (dbUser == null) {
+                                        dbUser = UserEntity(
+                                            id = authUser.uid,
+                                            role = "CUSTOMER",
+                                            name = authUser.displayName ?: authUser.email?.substringBefore("@") ?: "Pelanggan PijatKu",
+                                            email = authUser.email ?: email,
+                                            phone = "",
+                                            profileImageUrl = "cust_avatar",
+                                            balance = 500000.0,
+                                            referralCode = "REF-${authUser.uid.take(5).uppercase()}",
+                                            status = "APPROVED"
+                                        )
+                                        repository.insertUser(dbUser)
+                                    }
+                                    currentUser.value = dbUser
+                                    currentRole.value = dbUser.role
+                                    observeNotifications()
+                                    onSuccess()
+                                }
+                            } else {
+                                onError("Gagal memuat data user.")
+                            }
+                        } else {
+                            onError(task.exception?.localizedMessage ?: "Login gagal. Silakan periksa email dan password.")
+                        }
+                    }
+            } catch (e: Exception) {
+                onError(e.localizedMessage ?: "Terjadi kesalahan.")
+            }
+        }
+    }
+
+    fun logout() {
+        try {
+            FirebaseAuth.getInstance().signOut()
+        } catch (e: Exception) {
+            // ignore
+        }
+        loginAs("cust_ahmad") // fallback to default simulation user
     }
 
     private fun observeNotifications() {
@@ -319,9 +460,10 @@ class PijatKuViewModel(application: Application) : AndroidViewModel(application)
 
     fun submitReview(rating: Int, comment: String) {
         viewModelScope.launch {
+            val userId = currentUser.value?.id ?: "cust_ahmad"
             val ordersList = repository.allOrders.firstOrNull() ?: emptyList()
             // Find the most recent complete order that has rating = 0
-            val unrated = ordersList.firstOrNull { it.customerId == "cust_ahmad" && it.status == "SELESAI" && it.rating == 0 }
+            val unrated = ordersList.firstOrNull { it.customerId == userId && it.status == "SELESAI" && it.rating == 0 }
             if (unrated != null) {
                 repository.rateOrder(unrated.id, rating, comment)
 
