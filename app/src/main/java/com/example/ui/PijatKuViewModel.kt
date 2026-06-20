@@ -1,6 +1,7 @@
 package com.example.ui
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.*
@@ -63,6 +64,47 @@ class PijatKuViewModel(application: Application) : AndroidViewModel(application)
     val customAddress = MutableStateFlow("Jl. Sudirman No. 12, Jakarta Pusat")
     val selectedPaymentMethod = MutableStateFlow("CASH") // "QRIS", "TRANSFER", "EWALLET", "CASH"
 
+    val firestoreOrders = MutableStateFlow<List<OrderEntity>>(emptyList())
+    val isHistoryLoading = MutableStateFlow(false)
+
+    fun fetchBookingHistoryFromFirestore() {
+        val userVal = currentUser.value ?: return
+        isHistoryLoading.value = true
+        FirebaseSyncManager.fetchOrdersFromFirestore(
+            customerId = userVal.id,
+            onSuccess = { orders ->
+                firestoreOrders.value = orders
+                isHistoryLoading.value = false
+            },
+            onFailure = { error ->
+                Log.e("PijatKuViewModel", "Error fetching Firestore orders: ${error.message}", error)
+                // Fallback: populate from allOrders state flow directly
+                val localOrders = allOrders.value.filter { it.customerId == userVal.id }
+                firestoreOrders.value = localOrders.sortedByDescending { it.timestamp }
+                isHistoryLoading.value = false
+            }
+        )
+    }
+
+    fun refreshTherapistRatingsFromFirestore() {
+        viewModelScope.launch {
+            FirebaseSyncManager.fetchTherapistsFromFirestore { fsTherapists ->
+                viewModelScope.launch {
+                    for (ft in fsTherapists) {
+                        val localTherapist = repository.getUserSync(ft.id)
+                        if (localTherapist != null) {
+                            val updated = localTherapist.copy(
+                                rating = ft.rating,
+                                totalReviews = ft.totalReviews
+                            )
+                            repository.insertUser(updated)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // Map Coordinates tracking
     val customerLat = MutableStateFlow(-6.2088)
     val customerLng = MutableStateFlow(106.8456)
@@ -122,6 +164,7 @@ class PijatKuViewModel(application: Application) : AndroidViewModel(application)
             }
             observeNotifications()
             observeActiveOrder()
+            refreshTherapistRatingsFromFirestore()
         }
     }
 
@@ -132,6 +175,7 @@ class PijatKuViewModel(application: Application) : AndroidViewModel(application)
                 currentUser.value = user
                 currentRole.value = user.role
                 observeNotifications()
+                refreshTherapistRatingsFromFirestore()
             }
         }
     }
@@ -461,28 +505,25 @@ class PijatKuViewModel(application: Application) : AndroidViewModel(application)
     fun submitReview(rating: Int, comment: String) {
         viewModelScope.launch {
             val userId = currentUser.value?.id ?: "cust_ahmad"
+            val userName = currentUser.value?.name ?: "Pelanggan PijatKu"
             val ordersList = repository.allOrders.firstOrNull() ?: emptyList()
             // Find the most recent complete order that has rating = 0
             val unrated = ordersList.firstOrNull { it.customerId == userId && it.status == "SELESAI" && it.rating == 0 }
             if (unrated != null) {
                 repository.rateOrder(unrated.id, rating, comment)
 
-                // Recalculate average therapist rating & reviews
-                val tId = unrated.therapistId
-                val tOrders = ordersList.filter { it.therapistId == tId && (it.id == unrated.id || it.rating > 0) }
-                val ratedCount = tOrders.count { it.rating > 0 } + 1
-                val totalStars = tOrders.sumOf { if (it.id == unrated.id) rating else it.rating }
-                val avgRating = totalStars.toFloat() / ratedCount
-
-                val therapistUser = repository.getUserSync(tId)
-                if (therapistUser != null) {
-                    val updatedTherapist = therapistUser.copy(
-                        rating = avgRating,
-                        totalReviews = ratedCount,
-                        customerCount = therapistUser.customerCount + 1
-                    )
-                    repository.insertUser(updatedTherapist)
-                }
+                FirebaseSyncManager.submitReviewToFirestore(
+                    orderId = unrated.id,
+                    customerId = userId,
+                    customerName = userName,
+                    therapistId = unrated.therapistId,
+                    rating = rating,
+                    comment = comment,
+                    onComplete = {
+                        // Synchronize updated therapist stats back from Firestore dynamically
+                        refreshTherapistRatingsFromFirestore()
+                    }
+                )
             }
         }
     }

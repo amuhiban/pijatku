@@ -1,7 +1,7 @@
 package com.example.ui.screens
 
+import android.os.Bundle
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,17 +15,58 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.example.ui.theme.MintGreen
 import com.example.ui.theme.NavyPrimary
 import com.example.ui.theme.NavySecondary
 import com.example.ui.theme.AccentGold
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.MarkerOptions
+
+@Composable
+fun rememberMapViewWithLifecycle(): MapView {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val mapView = remember {
+        MapView(context)
+    }
+
+    val lifecycleObserver = rememberMapLifecycleObserver(mapView)
+    val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(lifecycle) {
+        lifecycle.addObserver(lifecycleObserver)
+        onDispose {
+            lifecycle.removeObserver(lifecycleObserver)
+        }
+    }
+
+    return mapView
+}
+
+@Composable
+fun rememberMapLifecycleObserver(mapView: MapView): LifecycleEventObserver =
+    remember(mapView) {
+        LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_CREATE -> mapView.onCreate(Bundle())
+                Lifecycle.Event.ON_START -> mapView.onStart()
+                Lifecycle.Event.ON_RESUME -> mapView.onResume()
+                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
+                Lifecycle.Event.ON_STOP -> mapView.onStop()
+                Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
+                else -> {}
+            }
+        }
+    }
 
 @Composable
 fun SimpleInteractiveMap(
@@ -37,144 +78,54 @@ fun SimpleInteractiveMap(
     status: String,
     modifier: Modifier = Modifier
 ) {
-    // Dynamic animated ripple wave for GPS indicators
-    val infiniteTransition = rememberInfiniteTransition(label = "ripple")
-    val waveRadius by infiniteTransition.animateFloat(
-        initialValue = 10f,
-        targetValue = 45f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1800, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "ripple_radius"
-    )
-    val waveAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.8f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1800, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "ripple_alpha"
-    )
+    val mapView = rememberMapViewWithLifecycle()
 
     Card(
         modifier = modifier
             .fillMaxWidth()
             .height(200.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFE2E8F0))
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F5F9))
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val width = size.width
-                val height = size.height
-
-                // Land background
-                drawRect(
-                    color = Color(0xFFE2E8F0),
-                    size = size
-                )
-
-                // Parks spaces
-                drawRect(
-                    color = Color(0xFFDCFCE7),
-                    topLeft = Offset(width * 0.15f, height * 0.1f),
-                    size = Size(width * 0.3f, height * 0.35f)
-                )
-                drawCircle(
-                    color = Color(0xFFDCFCE7),
-                    radius = width * 0.18f,
-                    center = Offset(width * 0.8f, height * 0.75f)
-                )
-
-                // Blue waterway/river
-                val riverPath = androidx.compose.ui.graphics.Path().apply {
-                    moveTo(0f, height * 0.8f)
-                    cubicTo(
-                        width * 0.3f, height * 0.75f,
-                        width * 0.6f, height * 0.95f,
-                        width, height * 0.88f
-                    )
+            AndroidView(
+                factory = { mapView },
+                modifier = Modifier.fillMaxSize(),
+                update = { map ->
+                    map.getMapAsync { googleMap ->
+                        googleMap.clear()
+                        googleMap.uiSettings.isZoomControlsEnabled = true
+                        
+                        val customerLoc = LatLng(customerLat, customerLng)
+                        
+                        googleMap.addMarker(
+                            MarkerOptions()
+                                .position(customerLoc)
+                                .title("Lokasi Saya")
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                        )
+                        
+                        if (status != "MENUNGGU" && status != "SELESAI" && status != "BATAL") {
+                            val therapistLoc = LatLng(therapistLat, therapistLng)
+                            googleMap.addMarker(
+                                MarkerOptions()
+                                    .position(therapistLoc)
+                                    .title("Terapis: $therapistName")
+                                    .snippet("Status: $status")
+                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                            )
+                            
+                            val bounds = LatLngBounds.Builder()
+                                .include(customerLoc)
+                                .include(therapistLoc)
+                                .build()
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 60))
+                        } else {
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(customerLoc, 14f))
+                        }
+                    }
                 }
-                drawPath(
-                    path = riverPath,
-                    color = Color(0xFFBFDBFE),
-                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 12f)
-                )
-
-                // Grid lines representing town streets
-                val streetColor = Color(0xFFF1F5F9)
-                val strokeWidth = 8f
-
-                // Horizontal streets
-                drawLine(streetColor, Offset(0f, height * 0.25f), Offset(width, height * 0.25f), strokeWidth)
-                drawLine(streetColor, Offset(0f, height * 0.55f), Offset(width, height * 0.55f), strokeWidth)
-                drawLine(streetColor, Offset(0f, height * 0.75f), Offset(width, height * 0.75f), strokeWidth)
-
-                // Vertical/diagonal streets
-                drawLine(streetColor, Offset(width * 0.25f, 0f), Offset(width * 0.25f, height), strokeWidth)
-                drawLine(streetColor, Offset(width * 0.55f, 0f), Offset(width * 0.45f, height), strokeWidth)
-                drawLine(streetColor, Offset(width * 0.8f, 0f), Offset(width * 0.85f, height), strokeWidth)
-
-                // Customer X, Y center mapping
-                val custX = width * 0.65f
-                val custY = height * 0.45f
-
-                // Cast difference to Float precisely to prevent type mismatch
-                val latDiff = ((therapistLat - customerLat) * 30000.0).toFloat()
-                val lngDiff = ((therapistLng - customerLng) * 30000.0).toFloat()
-
-                val therX = (custX + lngDiff).coerceIn(40f, width - 40f)
-                val therY = (custY - latDiff).coerceIn(40f, height - 40f)
-
-                // Draw connecting route line if tracking
-                if (status != "MENUNGGU" && status != "SELESAI" && status != "BATAL") {
-                    drawLine(
-                        color = NavySecondary,
-                        start = Offset(therX, therY),
-                        end = Offset(custX, custY),
-                        strokeWidth = 6f,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(15f, 10f), 0f)
-                    )
-                }
-
-                // --- Draw Customer Marker (Blue) ---
-                drawCircle(
-                    color = NavySecondary.copy(alpha = waveAlpha),
-                    radius = waveRadius + 8f,
-                    center = Offset(custX, custY)
-                )
-                drawCircle(
-                    color = Color.White,
-                    radius = 12f,
-                    center = Offset(custX, custY)
-                )
-                drawCircle(
-                    color = NavySecondary,
-                    radius = 8f,
-                    center = Offset(custX, custY)
-                )
-
-                // --- Draw Therapist Marker (Green) ---
-                if (status != "SELESAI" && status != "BATAL") {
-                    drawCircle(
-                        color = MintGreen.copy(alpha = waveAlpha),
-                        radius = waveRadius,
-                        center = Offset(therX, therY)
-                    )
-                    drawCircle(
-                        color = Color.White,
-                        radius = 14f,
-                        center = Offset(therX, therY)
-                    )
-                    drawCircle(
-                        color = MintGreen,
-                        radius = 10f,
-                        center = Offset(therX, therY)
-                    )
-                }
-            }
+            )
 
             // Status Badge Overlay
             Card(
@@ -225,6 +176,7 @@ fun SimpleInteractiveMap(
         }
     }
 }
+
 
 @Composable
 fun InteractiveStarRating(

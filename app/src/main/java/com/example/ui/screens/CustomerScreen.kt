@@ -25,6 +25,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.example.R
 import com.example.data.OrderEntity
 import com.example.ui.PijatKuViewModel
@@ -57,6 +62,10 @@ fun CustomerScreen(
     var showBookingForm by remember { mutableStateOf(false) }
     var showChatView by remember { mutableStateOf(false) }
     var chatInputText by remember { mutableStateOf("") }
+    var showCancelConfirmation by remember { mutableStateOf(false) }
+
+    var showMapMode by remember { mutableStateOf(false) }
+    var selectedMapTherapist by remember { mutableStateOf<com.example.data.UserEntity?>(null) }
 
     // Forms for Reviewing
     var ratingInput by remember { mutableIntStateOf(5) }
@@ -83,15 +92,91 @@ fun CustomerScreen(
         it.customerId == (user?.id ?: "") && it.status == "SELESAI" && it.rating == 0 
     }
 
-    var showOnlyActive by remember { mutableStateOf(false) }
-    val filteredTherapists = if (showOnlyActive) therapists.filter { it.isOnline } else therapists
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedMassageType by remember { mutableStateOf("Semua") }
 
-    LazyColumn(
+    if (showCancelConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showCancelConfirmation = false },
+            title = {
+                Text(
+                    text = "Batalkan Pesanan?",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 17.sp,
+                    color = NavyPrimary
+                )
+            },
+            text = {
+                Text(
+                    text = "Apakah Anda yakin ingin membatalkan pesanan layanan pijat ini? Tindakan ini tidak dapat diurungkan.",
+                    fontSize = 13.sp,
+                    color = Color.DarkGray
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.cancelOrder()
+                        showCancelConfirmation = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                ) {
+                    Text("Ya, Batalkan", color = Color.White, fontSize = 12.sp)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCancelConfirmation = false }) {
+                    Text("Kembali", color = Color.Gray, fontSize = 12.sp)
+                }
+            },
+            shape = RoundedCornerShape(16.dp),
+            containerColor = Color.White
+        )
+    }
+    var minRating by remember { mutableStateOf(0.0) }
+    var showOnlyActive by remember { mutableStateOf(false) }
+
+    fun getTherapistSpecialty(name: String): String {
+        return when {
+            name.contains("Budi", ignoreCase = true) -> "Pijat Tradisional Jawa, Urut Capek, Refleksi Saraf Kaki"
+            name.contains("Ani", ignoreCase = true) -> "Pijat Ibu & Anak, Totok Aura Wajah, Pijat Relaksasi Swedia"
+            name.contains("Joko", ignoreCase = true) -> "Pijat Aromaterapi Kesehatan, Bekam Kering, Deep Tissue Therapy"
+            else -> "Terapi Kebal Pegal, Pijat Kebugaran, Kop Masuk Angin"
+        }
+    }
+
+    val filteredTherapists = therapists.filter { therapist ->
+        val specialty = getTherapistSpecialty(therapist.name)
+        val matchesActive = !showOnlyActive || therapist.isOnline
+        val matchesSearch = searchQuery.isBlank() || 
+                therapist.name.contains(searchQuery, ignoreCase = true) ||
+                specialty.contains(searchQuery, ignoreCase = true)
+        val matchesType = selectedMassageType == "Semua" || when (selectedMassageType) {
+            "Tradisional" -> specialty.contains("Tradisional", ignoreCase = true) || specialty.contains("Urut", ignoreCase = true)
+            "Refleksi" -> specialty.contains("Refleksi", ignoreCase = true)
+            "Relaksasi" -> specialty.contains("Relaksasi", ignoreCase = true) || specialty.contains("Aromaterapi", ignoreCase = true)
+            "Ibu & Anak" -> specialty.contains("Ibu", ignoreCase = true) || specialty.contains("Anak", ignoreCase = true)
+            else -> true
+        }
+        val matchesRating = therapist.rating >= minRating
+
+        matchesActive && matchesSearch && matchesType && matchesRating
+    }
+
+    var activeTab by remember { mutableStateOf("home") } // "home" or "history"
+
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF8FAFC)),
-        contentPadding = PaddingValues(bottom = 80.dp)
+            .background(Color(0xFFF8FAFC))
     ) {
+        if (activeTab == "home") {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xFFF8FAFC)),
+                contentPadding = PaddingValues(bottom = 90.dp)
+            ) {
         // 1. Header (User profile, greeting, wallet)
         item {
             Box(
@@ -483,7 +568,7 @@ fun CustomerScreen(
                             }
 
                             OutlinedButton(
-                                onClick = { viewModel.cancelOrder() },
+                                onClick = { showCancelConfirmation = true },
                                 modifier = Modifier.weight(1f),
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red),
                                 border = BorderStroke(1.dp, Color.Red),
@@ -804,84 +889,474 @@ fun CustomerScreen(
         // 6. Nearby Therapists List Component
         item {
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
-                Text(
-                    text = "Daftar Terapis Profesional PijatKu 💆‍♂️",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
-                    color = NavyPrimary
-                )
-                Text(
-                    text = "Terapis berlisensi, bersertifikat resmi, dengan ulasan terpercaya",
-                    fontSize = 11.sp,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(vertical = 2.dp)
-                )
-            }
-        }
-
-        // Horizontal filter buttons
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Filter 1: Semua
-                Card(
-                    modifier = Modifier
-                        .clickable { showOnlyActive = false }
-                        .shadow(if (!showOnlyActive) 2.dp else 0.dp, RoundedCornerShape(20.dp)),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (!showOnlyActive) NavyPrimary else Color.White
-                    ),
-                    border = if (showOnlyActive) BorderStroke(1.dp, Color.LightGray) else null
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Semua Terapis (${therapists.size})",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (!showOnlyActive) Color.White else Color.Gray,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                    )
-                }
-
-                // Filter 2: Hanya yang Aktif
-                val activeCount = therapists.count { it.isOnline }
-                Card(
-                    modifier = Modifier
-                        .clickable { showOnlyActive = true }
-                        .shadow(if (showOnlyActive) 2.dp else 0.dp, RoundedCornerShape(20.dp)),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (showOnlyActive) NavyPrimary else Color.White
-                    ),
-                    border = if (!showOnlyActive) BorderStroke(1.dp, Color.LightGray) else null
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .background(MintGreen, CircleShape)
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Daftar Terapis Profesional PijatKu 💆‍♂️",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            color = NavyPrimary
                         )
                         Text(
-                            text = "Aktif Online ($activeCount)",
+                            text = "Terapis berlisensi resmi dengan ulasan terpercaya",
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = if (showOnlyActive) Color.White else Color.Gray
+                            color = Color.Gray,
+                            modifier = Modifier.padding(vertical = 2.dp)
+                        )
+                    }
+                    
+                    // Toggle Peta
+                    Button(
+                        onClick = { 
+                            showMapMode = !showMapMode
+                            selectedMapTherapist = null
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (showMapMode) NavySecondary else NavyPrimary
+                        ),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (showMapMode) Icons.Default.List else Icons.Default.Map,
+                            contentDescription = "Toggle Map",
+                            modifier = Modifier.size(16.dp),
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = if (showMapMode) "Daftar" else "Peta",
+                            fontSize = 11.sp,
+                            color = Color.White
                         )
                     }
                 }
             }
         }
 
+        // Horizontal filter, search and rating controls
+        // 7. Search Input Component
+        item {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("Cari nama, keahlian, atau daerah...", fontSize = 12.sp, color = Color.Gray) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Cari", tint = NavyPrimary) },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(Icons.Default.Clear, contentDescription = "Bersihkan", tint = Color.Gray)
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = NavyPrimary,
+                    unfocusedBorderColor = Color.LightGray.copy(alpha = 0.6f),
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
+                ),
+                singleLine = true
+            )
+        }
+
+        // 8. Filters Component (Status, Massage Type, Rating Level)
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+            ) {
+                // Filter Section Header
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, bottom = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Spesialisasi & Rating",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = NavyPrimary,
+                        letterSpacing = 0.5.sp
+                    )
+                    if (searchQuery.isNotEmpty() || selectedMassageType != "Semua" || minRating > 0.0 || showOnlyActive) {
+                        Text(
+                            text = "Reset Filter",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Red,
+                            modifier = Modifier.clickable {
+                                searchQuery = ""
+                                selectedMassageType = "Semua"
+                                minRating = 0.0
+                                showOnlyActive = false
+                            }
+                        )
+                    }
+                }
+
+                // First row: Online Status Filter
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Semua Terapis
+                    Card(
+                        modifier = Modifier
+                            .clickable { showOnlyActive = false }
+                            .shadow(if (!showOnlyActive) 1.dp else 0.dp, RoundedCornerShape(16.dp)),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (!showOnlyActive) NavyPrimary else Color.White
+                        ),
+                        border = if (showOnlyActive) BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.6f)) else null
+                    ) {
+                        Text(
+                            text = "Semua Terapis (${therapists.size})",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (!showOnlyActive) Color.White else Color.Gray,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                        )
+                    }
+
+                    // Online Sahaja
+                    val activeCount = therapists.count { it.isOnline }
+                    Card(
+                        modifier = Modifier
+                            .clickable { showOnlyActive = true }
+                            .shadow(if (showOnlyActive) 1.dp else 0.dp, RoundedCornerShape(16.dp)),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (showOnlyActive) NavyPrimary else Color.White
+                        ),
+                        border = if (!showOnlyActive) BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.6f)) else null
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(6.dp)
+                                    .background(MintGreen, CircleShape)
+                            )
+                            Text(
+                                text = "Aktif Online ($activeCount)",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (showOnlyActive) Color.White else Color.Gray
+                            )
+                        }
+                    }
+                }
+
+                // Second row: Group Specialties in a beautiful LazyRow
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val specialtyOptions = listOf("Semua", "Tradisional", "Refleksi", "Relaksasi", "Ibu & Anak")
+                    items(specialtyOptions) { type ->
+                        val isSelected = selectedMassageType == type
+                        Card(
+                            modifier = Modifier
+                                .clickable { selectedMassageType = type }
+                                .shadow(if (isSelected) 1.dp else 0.dp, RoundedCornerShape(16.dp)),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isSelected) NavyPrimary else Color.White
+                            ),
+                            border = if (!isSelected) BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f)) else null
+                        ) {
+                            Text(
+                                text = type,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isSelected) Color.White else Color.Gray,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            )
+                        }
+                    }
+                }
+
+                // Third row: Rating Filter Options
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val ratingOptions = listOf(
+                        0.0 to "Semua Rating ★",
+                        4.5 to "4.5+ ★ Sangat Baik",
+                        4.8 to "4.8+ ★ Mitra Utama"
+                    )
+                    items(ratingOptions) { (valRating, label) ->
+                        val isSelected = minRating == valRating
+                        Card(
+                            modifier = Modifier
+                                .clickable { minRating = valRating }
+                                .shadow(if (isSelected) 1.dp else 0.dp, RoundedCornerShape(16.dp)),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isSelected) NavyPrimary else Color.White
+                            ),
+                            border = if (!isSelected) BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f)) else null
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                if (valRating > 0.0) {
+                                    Icon(
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = null,
+                                        tint = AccentGold,
+                                        modifier = Modifier.size(11.dp)
+                                    )
+                                }
+                                Text(
+                                    text = label,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isSelected) Color.White else Color.Gray
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // Render List
-        if (filteredTherapists.isEmpty()) {
+        if (showMapMode) {
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(350.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Card(
+                        modifier = Modifier.fillMaxSize(),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            val mapView = rememberMapViewWithLifecycle()
+                            val userLatFlow = viewModel.customerLat.collectAsState().value
+                            val userLngFlow = viewModel.customerLng.collectAsState().value
+
+                            AndroidView(
+                                factory = { mapView },
+                                modifier = Modifier.fillMaxSize(),
+                                update = { map ->
+                                    map.getMapAsync { googleMap ->
+                                        googleMap.clear()
+                                        googleMap.uiSettings.isZoomControlsEnabled = true
+                                        
+                                        val userLoc = LatLng(userLatFlow, userLngFlow)
+                                        googleMap.addMarker(
+                                            MarkerOptions()
+                                                .position(userLoc)
+                                                .title("Lokasi Saya")
+                                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                                        )
+                                        
+                                        filteredTherapists.forEach { therapist ->
+                                            val hash = therapist.id.hashCode().toDouble() / Int.MAX_VALUE
+                                            val tLat = userLatFlow + hash * 0.012
+                                            val tLng = userLngFlow + Math.sin(hash) * 0.012
+                                            val tLoc = LatLng(tLat, tLng)
+                                            
+                                            googleMap.addMarker(
+                                                MarkerOptions()
+                                                    .position(tLoc)
+                                                    .title(therapist.name)
+                                                    .snippet("Rating: ${therapist.rating} ★ (${therapist.totalReviews} ulasan)")
+                                                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                                            )
+                                        }
+                                        
+                                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLoc, 13f))
+                                        
+                                        googleMap.setOnMarkerClickListener { marker ->
+                                            val clickedName = marker.title
+                                            if (clickedName != "Lokasi Saya") {
+                                                val clickedTherapist = filteredTherapists.firstOrNull { it.name == clickedName }
+                                                if (clickedTherapist != null) {
+                                                    selectedMapTherapist = clickedTherapist
+                                                }
+                                            }
+                                            false
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (selectedMapTherapist != null) {
+                val t = selectedMapTherapist!!
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .shadow(8.dp, RoundedCornerShape(16.dp)),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(45.dp)
+                                            .background(NavyPrimary.copy(alpha = 0.1f), CircleShape),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = t.name.firstOrNull()?.toString() ?: "T",
+                                            color = NavyPrimary,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 18.sp
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Column {
+                                        Text(
+                                            text = t.name,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp,
+                                            color = NavyPrimary
+                                        )
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Star,
+                                                contentDescription = "Rating",
+                                                tint = AccentGold,
+                                                modifier = Modifier.size(14.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(2.dp))
+                                            Text(
+                                                text = "${t.rating} (${t.totalReviews} ulasan)",
+                                                fontSize = 12.sp,
+                                                color = Color.DarkGray
+                                            )
+                                        }
+                                    }
+                                }
+                                
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(if (t.isOnline) MintGreen.copy(alpha = 0.2f) else Color.LightGray.copy(alpha = 0.2f))
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Text(
+                                        text = if (t.isOnline) "ONLINE" else "OFFLINE",
+                                        color = if (t.isOnline) MintGreen else Color.Gray,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                            
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = "Spesialisasi: ${getTherapistSpecialty(t.name)}",
+                                fontSize = 11.sp,
+                                color = Color.Gray,
+                                lineHeight = 15.sp
+                            )
+                            
+                            Spacer(modifier = Modifier.height(14.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                OutlinedButton(
+                                    onClick = { selectedMapTherapist = null },
+                                    modifier = Modifier.weight(1f),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Gray)
+                                ) {
+                                    Text("Tutup", fontSize = 12.sp)
+                                }
+                                Button(
+                                    onClick = {
+                                        viewModel.selectedTherapist.value = t
+                                        showBookingForm = true
+                                    },
+                                    modifier = Modifier.weight(1.5f),
+                                    colors = ButtonDefaults.buttonColors(containerColor = NavyPrimary),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text("Pesan Terapis Ini", fontSize = 12.sp, color = Color.White)
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        colors = CardDefaults.cardColors(containerColor = NavySecondary.copy(alpha = 0.1f)),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = "Info",
+                                tint = NavyPrimary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Silakan sentuh pin terapis hijau di peta untuk melihat detail spesialisasi dan memesan secara instan.",
+                                fontSize = 11.sp,
+                                color = NavyPrimary,
+                                lineHeight = 14.sp
+                            )
+                        }
+                    }
+                }
+            }
+        } else if (filteredTherapists.isEmpty()) {
             item {
                 Card(
                     modifier = Modifier
@@ -1099,6 +1574,83 @@ fun CustomerScreen(
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+    } else {
+            BookingHistoryView(
+                viewModel = viewModel,
+                currencyFormatter = currencyFormatter,
+                onRateOrderClick = {
+                    ratingInput = 5
+                    reviewComment = ""
+                    activeTab = "home"
+                }
+            )
+        }
+
+        // Float customized beautiful bottom Navigation Bar
+        Card(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp)
+                .fillMaxWidth(0.9f)
+                .shadow(8.dp, RoundedCornerShape(20.dp)),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Home Tab
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clickable { activeTab = "home" }
+                        .padding(horizontal = 24.dp, vertical = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Home,
+                        contentDescription = "Beranda",
+                        tint = if (activeTab == "home") MintGreen else Color.Gray,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Text(
+                        text = "Beranda",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (activeTab == "home") MintGreen else Color.Gray
+                    )
+                }
+
+                // History Tab
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clickable {
+                            activeTab = "history"
+                            viewModel.fetchBookingHistoryFromFirestore()
+                        }
+                        .padding(horizontal = 24.dp, vertical = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.History,
+                        contentDescription = "Riwayat",
+                        tint = if (activeTab == "history") MintGreen else Color.Gray,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Text(
+                        text = "Riwayat",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (activeTab == "history") MintGreen else Color.Gray
+                    )
                 }
             }
         }
@@ -1698,6 +2250,347 @@ fun FirebaseAuthScreen(
                             fontWeight = FontWeight.Bold,
                             color = MintGreen
                         )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BookingHistoryView(
+    viewModel: PijatKuViewModel,
+    currencyFormatter: NumberFormat,
+    onRateOrderClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val firestoreOrders by viewModel.firestoreOrders.collectAsState()
+    val isHistoryLoading by viewModel.isHistoryLoading.collectAsState()
+    var subTab by remember { mutableStateOf("active") } // "active" or "history"
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color(0xFFF8FAFC))
+    ) {
+        // 1. Header (Navy Gradient Banner matching the application's overall look)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(NavyPrimary, NavySecondary)
+                    ),
+                    shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)
+                )
+                .padding(horizontal = 20.dp, vertical = 24.dp)
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "Riwayat Pemesanan",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Text(
+                    text = "Lihat status pesanan pijat mendatang dan riwayat transaksi masa lalu Anda",
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 11.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // 2. Segmented Sub-Tabs
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            listOf("active" to "💆‍♂️ Mendatang", "history" to "📜 Riwayat").forEach { (tabId, tabName) ->
+                val isSelected = subTab == tabId
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (isSelected) MintGreen else Color(0xFFE2E8F0))
+                        .clickable { subTab = tabId }
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = tabName,
+                        color = if (isSelected) Color.White else Color.DarkGray,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Manual Refresh Icon button row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = if (subTab == "active") "Sesi Aktif & Mendatang" else "Riwayat Selesai & Batal",
+                fontWeight = FontWeight.Bold,
+                fontSize = 13.sp,
+                color = NavyPrimary
+            )
+
+            IconButton(onClick = { viewModel.fetchBookingHistoryFromFirestore() }) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Refresh",
+                    tint = MintGreen,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+
+        // 3. Render List of Bookings from Firestore
+        if (isHistoryLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = MintGreen)
+            }
+        } else {
+            // Filter orders based on the sub-tab selection
+            val filteredList = firestoreOrders.filter { order ->
+                if (subTab == "active") {
+                    order.status != "SELESAI" && order.status != "BATAL"
+                } else {
+                    order.status == "SELESAI" || order.status == "BATAL"
+                }
+            }
+
+            if (filteredList.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 120.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "📭",
+                        fontSize = 48.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = if (subTab == "active") "Tidak ada pemesanan aktif saat ini" else "Belum ada riwayat transaksi",
+                        color = Color.Gray,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Gunakan tombol pesan untuk memanggil terapis pijat.",
+                        color = Color.Gray.copy(alpha = 0.7f),
+                        fontSize = 11.sp
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 120.dp, start = 16.dp, end = 16.dp)
+                ) {
+                    items(filteredList) { order ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                                .shadow(2.dp, RoundedCornerShape(16.dp)),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(14.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .background(Color(0xFFEFF6FF), CircleShape),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text("💆‍♂️", fontSize = 16.sp)
+                                        }
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Column {
+                                            Text(
+                                                text = order.serviceName,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                fontSize = 13.sp,
+                                                color = NavyPrimary
+                                            )
+                                            Text(
+                                                text = "Bersama: ${order.therapistName}",
+                                                color = NavySecondary,
+                                                fontWeight = FontWeight.Medium,
+                                                fontSize = 11.sp
+                                            )
+                                        }
+                                    }
+
+                                    // Status Badge styling based on order.status
+                                    val (badgeBgColor, badgeContentColor, statusLabel) = when (order.status) {
+                                        "MENUNGGU" -> Triple(Color(0xFFFEF3C7), Color(0xFFD97706), "Menunggu")
+                                        "MENUJU_LOKASI" -> Triple(Color(0xFFDBEAFE), Color(0xFF2563EB), "OTW")
+                                        "TIBA" -> Triple(Color(0xFFE0F2FE), Color(0xFF0284C7), "Tiba")
+                                        "MELAYANI" -> Triple(Color(0xFFD1FAE5), Color(0xFF059669), "Melayani")
+                                        "SELESAI" -> Triple(Color(0xFFD1FAE5), Color(0xFF10B981), "Selesai")
+                                        "BATAL" -> Triple(Color(0xFFFEE2E2), Color(0xFFEF4444), "Batal")
+                                        else -> Triple(Color(0xFFE2E8F0), Color(0xFF475569), order.status)
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(badgeBgColor)
+                                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    ) {
+                                        Text(
+                                            text = statusLabel,
+                                            color = badgeContentColor,
+                                            fontWeight = FontWeight.ExtraBold,
+                                            fontSize = 10.sp
+                                        )
+                                    }
+                                }
+
+                                Divider(
+                                    modifier = Modifier.padding(vertical = 10.dp),
+                                    color = Color.LightGray.copy(alpha = 0.4f)
+                                )
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                imageVector = Icons.Default.DateRange,
+                                                contentDescription = "Tanggal",
+                                                tint = Color.Gray,
+                                                modifier = Modifier.size(13.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text(
+                                                text = "${order.date} • ${order.time}",
+                                                fontSize = 11.sp,
+                                                color = Color.DarkGray,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                imageVector = Icons.Default.Place,
+                                                contentDescription = "Alamat",
+                                                tint = Color.Gray,
+                                                modifier = Modifier.size(13.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text(
+                                                text = order.address,
+                                                fontSize = 11.sp,
+                                                color = Color.Gray,
+                                                maxLines = 1
+                                            )
+                                        }
+                                    }
+
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text(
+                                            text = "Biaya Total",
+                                            fontSize = 9.sp,
+                                            color = Color.Gray
+                                        )
+                                        Text(
+                                            text = currencyFormatter.format(order.price),
+                                            fontWeight = FontWeight.ExtraBold,
+                                            fontSize = 13.sp,
+                                            color = MintGreen
+                                        )
+                                    }
+                                }
+
+                                // Interactive Rating Row if Completed & Unrated
+                                if (order.status == "SELESAI" && order.rating == 0) {
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    Button(
+                                        onClick = { onRateOrderClick() },
+                                        shape = RoundedCornerShape(8.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = AccentGold),
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentPadding = PaddingValues(vertical = 4.dp)
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Star,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(14.dp),
+                                                tint = Color.White
+                                            )
+                                            Text(
+                                                text = "Beri Ulasan & Rating",
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 11.sp,
+                                                color = Color.White
+                                            )
+                                        }
+                                    }
+                                } else if (order.status == "SELESAI" && order.rating > 0) {
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(Color(0xFFFEF3C7).copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                            .padding(8.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        Row(horizontalArrangement = Arrangement.spacedBy(2.dp), verticalAlignment = Alignment.CenterVertically) {
+                                            (1..5).forEach { i ->
+                                                Icon(
+                                                    imageVector = Icons.Default.Star,
+                                                    contentDescription = null,
+                                                    tint = if (i <= order.rating) Color(0xFFF59E0B) else Color.LightGray,
+                                                    modifier = Modifier.size(13.dp)
+                                                )
+                                            }
+                                        }
+                                        if (order.reviewComment.isNotEmpty()) {
+                                            Text(
+                                                text = "\"${order.reviewComment}\"",
+                                                fontSize = 11.sp,
+                                                color = Color.DarkGray,
+                                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                                                maxLines = 1
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
