@@ -1,0 +1,6 @@
+{
+  "name": "PijatKu",
+  "description": "Platform marketplace jasa pijat online premium yang mempertemukan pelanggan dengan terapis profesional secara real-time ke rumah.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
