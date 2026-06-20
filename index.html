@@ -47,6 +47,8 @@
             <nav class="hidden md:flex items-center space-x-8 font-semibold text-sm text-navySecondary">
                 <a href="#fitur" class="hover:text-mintGreen transition">Fitur Unggulan</a>
                 <a href="#layanan" class="hover:text-mintGreen transition">Layanan & Terapis</a>
+                <a href="#testimoni" class="hover:text-mintGreen transition">Testimoni</a>
+                <a href="#faq" class="hover:text-mintGreen transition">FAQ</a>
                 <a href="#unduh" class="hover:text-mintGreen transition">Unduh Aplikasi</a>
             </nav>
             <div>
@@ -158,6 +160,156 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- Dynamic Promotion Carousel Section -->
+    <section id="promosi" class="py-16 bg-slateLight/50 border-b border-slate-100 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-10">
+                <div class="space-y-2">
+                    <span class="text-xs font-bold uppercase tracking-widest text-mintGreen flex items-center gap-1.5">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                        Penawaran Terbatas Hari Ini
+                    </span>
+                    <h2 class="text-3xl font-extrabold text-navyPrimary tracking-tight">Promo & Diskon Eksklusif Mantap</h2>
+                    <p class="text-slate-500 text-sm max-w-lg">Gunakan kupon atau ambil promo paket pijat terbaik kami langsung melalui aplikasi Android untuk relaksasi tubuh maksimal.</p>
+                </div>
+                <!-- Carousel Nav Controls -->
+                <div class="flex items-center space-x-3 mt-6 md:mt-0">
+                    <button id="promo-prev" class="w-11 h-11 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition flex items-center justify-center text-navyPrimary font-extrabold shadow-sm active:scale-95 focus:outline-none">
+                        <svg class="w-5 h-5 stroke-current" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <button id="promo-next" class="w-11 h-11 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition flex items-center justify-center text-navyPrimary font-extrabold shadow-sm active:scale-95 focus:outline-none">
+                        <svg class="w-5 h-5 stroke-current" fill="none" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Carousel Viewport -->
+            <div class="overflow-hidden relative pb-6 select-none">
+                <div id="promo-track" class="flex transition-transform duration-500 ease-out gap-6" style="transform: translateX(0px);">
+                    
+                    <!-- Promo Card 1 -->
+                    <div class="w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] flex-shrink-0 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-lg hover:border-slate-200/50 transition duration-300">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-4">
+                                <span class="bg-red-500 text-white text-[10px] uppercase font-extrabold px-3 py-1 rounded-full tracking-wider shadow-sm">DISKON 30%</span>
+                                <span class="text-[11px] font-bold text-red-500 flex items-center gap-1">
+                                    ⏱️ Habis Jam 22.00
+                                </span>
+                            </div>
+                            <h3 class="font-bold text-base text-navyPrimary leading-snug">Paket Sehat Tradisional Jawa</h3>
+                            <p class="text-slate-500 text-xs mt-2 leading-relaxed">Nikmati 90 menit pijat tradisional warisan leluhur yang ampuh meredakan letih, pegal-pegal mendalam, dan masuk angin.</p>
+                            
+                            <div class="flex items-baseline space-x-2 mt-5">
+                                <span class="text-2xl font-black text-navyPrimary">Rp 84.000</span>
+                                <span class="text-sm text-slate-400 line-through">Rp 120.000</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+                            <span class="text-[11px] font-bold text-mintGreen flex items-center gap-1">⭐ Terapis Bintang 4.9</span>
+                            <a href="#unduh" class="bg-mintGreen hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-full transition shadow-sm">Ambil Promo</a>
+                        </div>
+                    </div>
+
+                    <!-- Promo Card 2 -->
+                    <div class="w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] flex-shrink-0 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-lg hover:border-slate-200/50 transition duration-300">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-4">
+                                <span class="bg-orange-500 text-white text-[10px] uppercase font-extrabold px-3 py-1 rounded-full tracking-wider shadow-sm">SPESIAL IBU</span>
+                                <span class="text-[11px] font-bold text-orange-500 flex items-center gap-1">
+                                    🏷️ Free Totok Wajah
+                                </span>
+                            </div>
+                            <h3 class="font-bold text-base text-navyPrimary leading-snug">Pijat Relaksasi Ibu & Anak</h3>
+                            <p class="text-slate-500 text-xs mt-2 leading-relaxed">Paket pijat khusus 60 menit dengan sentuhan lembut bersertifikasi tinggi demi kebugaran ibu dan tumbuh kembang sikecil.</p>
+                            
+                            <div class="flex items-baseline space-x-2 mt-5">
+                                <span class="text-2xl font-black text-navyPrimary">Rp 112.500</span>
+                                <span class="text-sm text-slate-400 line-through">Rp 150.000</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+                            <span class="text-[11px] font-bold text-mintGreen flex items-center gap-1">⭐ Terapis Spesialis Anak</span>
+                            <a href="#unduh" class="bg-mintGreen hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-full transition shadow-sm">Ambil Promo</a>
+                        </div>
+                    </div>
+
+                    <!-- Promo Card 3 -->
+                    <div class="w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] flex-shrink-0 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-lg hover:border-slate-200/50 transition duration-300">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-4">
+                                <span class="bg-indigo-600 text-white text-[10px] uppercase font-extrabold px-3 py-1 rounded-full tracking-wider shadow-sm">HAPPY HOUR</span>
+                                <span class="text-[11px] font-bold text-indigo-600 flex items-center gap-1">
+                                    🕒 12:00 - 15:00
+                                </span>
+                            </div>
+                            <h3 class="font-bold text-base text-navyPrimary leading-snug">Totok & Refleksi Wajah Cerah</h3>
+                            <p class="text-slate-500 text-xs mt-2 leading-relaxed">Lancarkan peredaran darah di titik-titik akupresur wajah selama 60 menit untuk memancarkan aura bugar alami & rileks.</p>
+                            
+                            <div class="flex items-baseline space-x-2 mt-5">
+                                <span class="text-2xl font-black text-navyPrimary">Rp 75.000</span>
+                                <span class="text-sm text-slate-400 line-through">Rp 100.000</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+                            <span class="text-[11px] font-bold text-mintGreen flex items-center gap-1">⭐ Termasuk Aromaterapi</span>
+                            <a href="#unduh" class="bg-mintGreen hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-full transition shadow-sm">Ambil Promo</a>
+                        </div>
+                    </div>
+
+                    <!-- Promo Card 4 -->
+                    <div class="w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] flex-shrink-0 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-lg hover:border-slate-200/50 transition duration-300">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-4">
+                                <span class="bg-emerald-500 text-white text-[10px] uppercase font-extrabold px-3 py-1 rounded-full tracking-wider shadow-sm">HEMAT MALAM</span>
+                                <span class="text-[11px] font-bold text-emerald-500 flex items-center gap-1">
+                                    💤 Rileks Sebelum Tidur
+                                </span>
+                            </div>
+                            <h3 class="font-bold text-base text-navyPrimary leading-snug">Refleksi Kaki Sehat & Saraf</h3>
+                            <p class="text-slate-500 text-xs mt-2 leading-relaxed">Terapi 60 menit penuh di titik refleksi telapak kaki untuk membantu memulihkan kualitas tidur lelap dan menstimulasi imunitas tubuh.</p>
+                            
+                            <div class="flex items-baseline space-x-2 mt-5">
+                                <span class="text-2xl font-black text-navyPrimary">Rp 60.000</span>
+                                <span class="text-sm text-slate-400 line-through">Rp 80.000</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+                            <span class="text-[11px] font-bold text-mintGreen flex items-center gap-1">⭐ Paling Diminati Pekerja</span>
+                            <a href="#unduh" class="bg-mintGreen hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-full transition shadow-sm">Ambil Promo</a>
+                        </div>
+                    </div>
+
+                    <!-- Promo Card 5 -->
+                    <div class="w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] flex-shrink-0 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-lg hover:border-slate-200/50 transition duration-300">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-4">
+                                <span class="bg-amber-500 text-white text-[10px] uppercase font-extrabold px-3 py-1 rounded-full tracking-wider shadow-sm">PENGGUNA BARU</span>
+                                <span class="text-[11px] font-bold text-amber-500 flex items-center gap-1">
+                                    🎟️ Kupon: SEHATBARU
+                                </span>
+                            </div>
+                            <h3 class="font-bold text-base text-navyPrimary leading-snug">Potongan Ekstra Pengguna Pertama</h3>
+                            <p class="text-slate-500 text-xs mt-2 leading-relaxed">Spesial sambutan untuk pemesanan pertama Anda di PijatKu. Nikmati potongan Rp 20.000 rupiah serbaguna untuk semua paket apa saja.</p>
+                            
+                            <div class="flex items-baseline space-x-2 mt-5">
+                                <span class="text-2xl font-black text-navyPrimary">- Rp 20.000</span>
+                                <span class="text-xs text-slate-400 font-semibold">Semua Layanan</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
+                            <span class="text-[11px] font-bold text-mintGreen flex items-center gap-1">⭐ Berlaku Selamanya</span>
+                            <a href="#unduh" class="bg-mintGreen hover:bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-full transition shadow-sm">Salin Kode</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Dots Indicators -->
+            <div id="promo-dots" class="flex justify-center items-center space-x-2.5 mt-4"></div>
         </div>
     </section>
 
@@ -282,6 +434,197 @@
         </div>
     </section>
 
+    <!-- Customer Testimonials Section -->
+    <section id="testimoni" class="py-20 bg-white relative overflow-hidden">
+        <div class="absolute -top-12 -left-12 w-32 h-32 bg-mintGreen/5 rounded-full blur-2xl"></div>
+        <div class="absolute -bottom-12 -right-12 w-48 h-48 bg-navyPrimary/5 rounded-full blur-3xl"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+                <span class="text-xs font-bold uppercase tracking-widest text-mintGreen">Testimoni Pengguna</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-navyPrimary">
+                    Kata Mereka yang Telah Bugar Bersama PijatKu
+                </h2>
+                <p class="text-slate-500 leading-relaxed text-sm md:text-base">
+                    Simak ulasan tulus dari ribuan pelanggan setia kami yang telah merasakan relaksasi dan kemudahan layanan kebugaran profesional di rumah mereka.
+                </p>
+            </div>
+
+            <!-- Responsive Testimonials Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-slateLight p-8 rounded-2xl border border-slate-100 hover:shadow-2xl hover:scale-[1.01] transition duration-300 flex flex-col justify-between space-y-6">
+                    <div class="space-y-4">
+                        <!-- Rating Stars -->
+                        <div class="flex items-center space-x-1">
+                            <span class="text-xs font-bold text-slate-400 mr-2">5.0</span>
+                            <span class="text-yellow-500">★★★★★</span>
+                        </div>
+                        <p class="text-slate-600 italic text-sm leading-relaxed">
+                            "Sangat praktis! Pegal-pegal hilang setelah pijat tradisional. Terapis datang tepat waktu, sopan, dan membawa perlengkapan steril lengkap. Tidak perlu repot keluar rumah lagi."
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-4 pt-4 border-t border-slate-200">
+                        <!-- Avatar -->
+                        <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-navyPrimary to-navySecondary flex items-center justify-center text-white font-extrabold text-sm shadow-md">
+                            BS
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-navyPrimary text-sm">Budi Santoso</h4>
+                            <p class="text-xs text-slate-400">Pengguna Terverifikasi • Jakarta</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-slateLight p-8 rounded-2xl border border-slate-100 hover:shadow-2xl hover:scale-[1.01] transition duration-300 flex flex-col justify-between space-y-6">
+                    <div class="space-y-4">
+                        <!-- Rating Stars -->
+                        <div class="flex items-center space-x-1">
+                            <span class="text-xs font-bold text-slate-400 mr-2">4.9</span>
+                            <span class="text-yellow-500">★★★★★</span>
+                        </div>
+                        <p class="text-slate-600 italic text-sm leading-relaxed">
+                            "Saya pesan paket Ibu & Anak secara rutin untuk akhir pekan. Terapisnya ramah sekali, penyabar ketika memijat si kecil hingga tenang dan tertidur pulas. Rekomendasi bintang 5!"
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-4 pt-4 border-t border-slate-200">
+                        <!-- Avatar -->
+                        <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-mintGreen to-emerald-600 flex items-center justify-center text-white font-extrabold text-sm shadow-md">
+                            AW
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-navyPrimary text-sm">Ani Wijaya</h4>
+                            <p class="text-xs text-slate-400">Ibu Rumah Tangga • Bandung</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-slateLight p-8 rounded-2xl border border-slate-100 hover:shadow-2xl hover:scale-[1.01] transition duration-300 flex flex-col justify-between space-y-6 font-sans">
+                    <div class="space-y-4">
+                        <!-- Rating Stars -->
+                        <div class="flex items-center space-x-1">
+                            <span class="text-xs font-bold text-slate-400 mr-2">5.0</span>
+                            <span class="text-yellow-500">★★★★★</span>
+                        </div>
+                        <p class="text-slate-600 italic text-sm leading-relaxed">
+                            "Sebagai IT Consultant yang menghabiskan 10 jam di depan laptop, pijat refleksi kaki dari PijatKu luar biasa membantu melancarkan saraf pegal. Fitur GPS openstreetmap nya sangat akurat."
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-4 pt-4 border-t border-slate-200">
+                        <!-- Avatar -->
+                        <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white font-extrabold text-sm shadow-md">
+                            DL
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-navyPrimary text-sm">David Lim</h4>
+                            <p class="text-xs text-slate-400">Langganan Tetap • Surabaya</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Accordion Section -->
+    <section id="faq" class="py-20 bg-slateLight relative">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-mintGreen/5 rounded-full blur-[100px] -z-10"></div>
+        <div class="max-w-4xl mx-auto px-6 relative z-10">
+            <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+                <span class="text-xs font-bold uppercase tracking-widest text-mintGreen">Tanya Jawab (FAQ)</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-navyPrimary">
+                    Punya Pertanyaan Seputar PijatKu?
+                </h2>
+                <p class="text-slate-500 leading-relaxed text-sm md:text-base">
+                    Temukan semua jawaban penting mengenai keandalan layanan kami, keselamatan terapis profesional, serta kesederhanaan metode pembayaran kami.
+                </p>
+            </div>
+
+            <div class="space-y-4">
+                <!-- FAQ Item 1 -->
+                <details class="group bg-white rounded-2xl border border-slate-100 p-6 [&_summary::-webkit-details-marker]:hidden transition-all duration-300 shadow-sm hover:shadow-md" open>
+                    <summary class="flex items-center justify-between cursor-pointer list-none">
+                        <h3 class="text-sm md:text-base font-bold text-navyPrimary group-open:text-mintGreen transition-colors flex items-center gap-3">
+                            <span class="text-mintGreen text-lg">💡</span>
+                            <span>Bagaimana cara memesan terapis di PijatKu?</span>
+                        </h3>
+                        <span class="transition group-open:rotate-180 p-1 bg-slate-100 group-open:bg-mintGreen/10 rounded-full">
+                            <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" width="18" class="text-slate-400 group-open:text-mintGreen"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </span>
+                    </summary>
+                    <div class="mt-4 text-slate-500 text-xs md:text-sm leading-relaxed border-t border-slate-100 pt-4 pl-8">
+                        Sangat mudah! Unduh aplikasi PijatKu, pilih layanan pijat yang Anda butuhkan (seperti Pijat Tradisional atau Refleksi Saraf Kaki), pilih mitra terapis profesional terdekat di peta, lalu sesuaikan spesifikasi pesanan Anda. Setelah dikonfirmasi, terapis akan langsung menuju lokasi tempat Anda tinggal.
+                    </div>
+                </details>
+
+                <!-- FAQ Item 2 -->
+                <details class="group bg-white rounded-2xl border border-slate-100 p-6 [&_summary::-webkit-details-marker]:hidden transition-all duration-300 shadow-sm hover:shadow-md">
+                    <summary class="flex items-center justify-between cursor-pointer list-none">
+                        <h3 class="text-sm md:text-base font-bold text-navyPrimary group-open:text-mintGreen transition-colors flex items-center gap-3">
+                            <span class="text-mintGreen text-lg">🛡️</span>
+                            <span>Apakah mitra terapis PijatKu terpercaya dan aman?</span>
+                        </h3>
+                        <span class="transition group-open:rotate-180 p-1 bg-slate-100 group-open:bg-mintGreen/10 rounded-full">
+                            <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" width="18" class="text-slate-400 group-open:text-mintGreen"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </span>
+                    </summary>
+                    <div class="mt-4 text-slate-500 text-xs md:text-sm leading-relaxed border-t border-slate-100 pt-4 pl-8">
+                        Tentu saja. Keamanan dan kenyamanan Anda adalah prioritas mutlak kami. Seluruh mitra terapis PijatKu wajib melalui seleksi verifikasi administratif ber-SKCK yang sangat ketat, lulus sertifikasi kompetensi keahlian pijat profesional formal, pemeriksaan rekam kesehatan, serta pelatihan standar layanan ramah bintang lima.
+                    </div>
+                </details>
+
+                <!-- FAQ Item 3 -->
+                <details class="group bg-white rounded-2xl border border-slate-100 p-6 [&_summary::-webkit-details-marker]:hidden transition-all duration-300 shadow-sm hover:shadow-md">
+                    <summary class="flex items-center justify-between cursor-pointer list-none">
+                        <h3 class="text-sm md:text-base font-bold text-navyPrimary group-open:text-mintGreen transition-colors flex items-center gap-3">
+                            <span class="text-mintGreen text-lg">💳</span>
+                            <span>Metode pembayaran apa saja yang didukung oleh PijatKu?</span>
+                        </h3>
+                        <span class="transition group-open:rotate-180 p-1 bg-slate-100 group-open:bg-mintGreen/10 rounded-full">
+                            <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" width="18" class="text-slate-400 group-open:text-mintGreen"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </span>
+                    </summary>
+                    <div class="mt-4 text-slate-500 text-xs md:text-sm leading-relaxed border-t border-slate-100 pt-4 pl-8">
+                        Kami menyediakan fleksibilitas lengkap untuk transaksi Anda. PijatKu mendukung pembayaran tunai (Cash/COD) langsung setelah sesi terapi selesai, kartu debit/kredit, dompet digital utama terpopuler (seperti Dana, GoPay, OVO), serta sistem transfer bank online secara instan demi kenyamanan mutlak Anda.
+                    </div>
+                </details>
+
+                <!-- FAQ Item 4 -->
+                <details class="group bg-white rounded-2xl border border-slate-100 p-6 [&_summary::-webkit-details-marker]:hidden transition-all duration-300 shadow-sm hover:shadow-md">
+                    <summary class="flex items-center justify-between cursor-pointer list-none">
+                        <h3 class="text-sm md:text-base font-bold text-navyPrimary group-open:text-mintGreen transition-colors flex items-center gap-3">
+                            <span class="text-mintGreen text-lg">🗺️</span>
+                            <span>Apakah saya harus memasukkan koordinat manual di aplikasi?</span>
+                        </h3>
+                        <span class="transition group-open:rotate-180 p-1 bg-slate-100 group-open:bg-mintGreen/10 rounded-full">
+                            <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" width="18" class="text-slate-400 group-open:text-mintGreen"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </span>
+                    </summary>
+                    <div class="mt-4 text-slate-500 text-xs md:text-sm leading-relaxed border-t border-slate-100 pt-4 pl-8">
+                        Tidak perlu khawatir. Aplikasi PijatKu didukung oleh sistem pemetaan OpenStreetMap presisi tinggi yang otomatis mendeteksi lokasi GPS titik jemput Anda. Cukup beri konfirmasi ketukan kecil, terapis akan memahami alamat Anda tanpa kebingungan menentukan rute navigasi.
+                    </div>
+                </details>
+
+                <!-- FAQ Item 5 -->
+                <details class="group bg-white rounded-2xl border border-slate-100 p-6 [&_summary::-webkit-details-marker]:hidden transition-all duration-300 shadow-sm hover:shadow-md">
+                    <summary class="flex items-center justify-between cursor-pointer list-none">
+                        <h3 class="text-sm md:text-base font-bold text-navyPrimary group-open:text-mintGreen transition-colors flex items-center gap-3">
+                            <span class="text-mintGreen text-lg">🕒</span>
+                            <span>Bisakah saya menjadwalkan pijat untuk hari esok?</span>
+                        </h3>
+                        <span class="transition group-open:rotate-180 p-1 bg-slate-100 group-open:bg-mintGreen/10 rounded-full">
+                            <svg fill="none" height="18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" width="18" class="text-slate-400 group-open:text-mintGreen"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </span>
+                    </summary>
+                    <div class="mt-4 text-slate-500 text-xs md:text-sm leading-relaxed border-t border-slate-100 pt-4 pl-8">
+                        Ya, tentu saja! Selain pemesanan langsung dikoordinasikan secara instan (on-demand), Anda juga dapat menggunakan antarmuka aplikasi bersahabat kami untuk menjadwalkan sesi terapi pijat hingga h-7 sebelumnya sesuai dengan waktu santai terbaik Anda.
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+
     <!-- Call to Action / Download Section -->
     <section id="unduh" class="py-20 gradient-bg text-white relative">
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.1),transparent_50%)]"></div>
@@ -319,6 +662,157 @@
             </p>
         </div>
     </footer>
+
+    <!-- Promotion Carousel Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const track = document.getElementById("promo-track");
+            const prevBtn = document.getElementById("promo-prev");
+            const nextBtn = document.getElementById("promo-next");
+            const dotsContainer = document.getElementById("promo-dots");
+            const cards = track.querySelectorAll(":scope > div");
+            
+            let currentIndex = 0;
+            let autoPlayTimer = null;
+            
+            // Function to calculate items per view dynamically
+            function getItemsPerView() {
+                if (window.innerWidth >= 1024) return 3;
+                if (window.innerWidth >= 768) return 2;
+                return 1;
+            }
+            
+            function getMaxIndex() {
+                return Math.max(0, cards.length - getItemsPerView());
+            }
+            
+            // Create Dots dynamically
+            function renderDots() {
+                dotsContainer.innerHTML = "";
+                const maxIdx = getMaxIndex();
+                for (let i = 0; i <= maxIdx; i++) {
+                    const dot = document.createElement("button");
+                    dot.className = "w-2.5 h-2.5 rounded-full transition-all duration-300 " + 
+                                    (i === currentIndex ? "bg-mintGreen w-6" : "bg-slate-300 hover:bg-slate-400");
+                    dot.setAttribute("aria-label", "Slide " + (i + 1));
+                    dot.addEventListener("click", () => {
+                        currentIndex = i;
+                        updateCarousel();
+                        resetAutoplay();
+                    });
+                    dotsContainer.appendChild(dot);
+                }
+            }
+            
+            function updateCarousel() {
+                const maxIdx = getMaxIndex();
+                if (currentIndex > maxIdx) {
+                    currentIndex = maxIdx;
+                }
+                if (currentIndex < 0) {
+                    currentIndex = 0;
+                }
+                
+                // Disable/Adjust opacity of navigation buttons
+                if (currentIndex === 0) {
+                    prevBtn.style.opacity = "0.4";
+                    prevBtn.style.cursor = "not-allowed";
+                } else {
+                    prevBtn.style.opacity = "1";
+                    prevBtn.style.cursor = "pointer";
+                }
+                
+                if (currentIndex === maxIdx) {
+                    nextBtn.style.opacity = "0.4";
+                    nextBtn.style.cursor = "not-allowed";
+                } else {
+                    nextBtn.style.opacity = "1";
+                    nextBtn.style.cursor = "pointer";
+                }
+                
+                // Calculate offset translate
+                if (cards.length > 0) {
+                    const cardWidth = cards[0].offsetWidth;
+                    const gap = 24; // gap-6
+                    const offsetWidth = currentIndex * (cardWidth + gap);
+                    track.style.transform = `translateX(-${offsetWidth}px)`;
+                }
+                
+                // Update dots active state
+                const dots = dotsContainer.querySelectorAll("button");
+                dots.forEach((dot, idx) => {
+                    if (idx === currentIndex) {
+                        dot.className = "w-2.5 h-2.5 rounded-full transition-all duration-300 bg-mintGreen w-6";
+                    } else {
+                        dot.className = "w-2.5 h-2.5 rounded-full transition-all duration-300 bg-slate-300 hover:bg-slate-400";
+                    }
+                });
+            }
+            
+            // Autoplay helpers
+            function startAutoplay() {
+                autoPlayTimer = setInterval(() => {
+                    const maxIdx = getMaxIndex();
+                    if (currentIndex >= maxIdx) {
+                        currentIndex = 0;
+                    } else {
+                        currentIndex++;
+                    }
+                    updateCarousel();
+                }, 4500);
+            }
+            
+            function resetAutoplay() {
+                if (autoPlayTimer) {
+                    clearInterval(autoPlayTimer);
+                    startAutoplay();
+                }
+            }
+            
+            // Event listeners
+            prevBtn.addEventListener("click", () => {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateCarousel();
+                    resetAutoplay();
+                }
+            });
+            
+            nextBtn.addEventListener("click", () => {
+                const maxIdx = getMaxIndex();
+                if (currentIndex < maxIdx) {
+                    currentIndex++;
+                    updateCarousel();
+                    resetAutoplay();
+                }
+            });
+            
+            // Pause on hover
+            const carouselContainer = document.getElementById("promosi");
+            if (carouselContainer) {
+                carouselContainer.addEventListener("mouseenter", () => {
+                    if (autoPlayTimer) clearInterval(autoPlayTimer);
+                });
+                
+                carouselContainer.addEventListener("mouseleave", () => {
+                    startAutoplay();
+                });
+            }
+            
+            // Resize compatibility
+            window.addEventListener("resize", () => {
+                renderDots();
+                updateCarousel();
+            });
+            
+            // Init rendering & values
+            setTimeout(() => {
+                renderDots();
+                updateCarousel();
+                startAutoplay();
+            }, 100);
+        });
+    </script>
 
 </body>
 </html>

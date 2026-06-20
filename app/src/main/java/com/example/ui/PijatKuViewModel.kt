@@ -340,7 +340,7 @@ class PijatKuViewModel(application: Application) : AndroidViewModel(application)
         appliedVoucher.value = null
     }
 
-    fun placeBooking() {
+    fun placeBooking(bookingDate: String = "Hari ini", bookingTime: String = "Sekarang (Segera)") {
         val customer = currentUser.value ?: return
         val therapist = selectedTherapist.value ?: allTherapists.value.firstOrNull { it.isOnline && it.status == "APPROVED" } ?: return
         val service = selectedService.value ?: services.first()
@@ -356,8 +356,8 @@ class PijatKuViewModel(application: Application) : AndroidViewModel(application)
             therapistName = therapist.name,
             serviceName = service.name,
             price = finalPrice,
-            date = "Hari ini",
-            time = "Sekarang (Segera)",
+            date = bookingDate,
+            time = bookingTime,
             status = "MENUNGGU",
             paymentMethod = selectedPaymentMethod.value,
             paymentStatus = if (selectedPaymentMethod.value == "CASH") "PENDING" else "SUCCESS",

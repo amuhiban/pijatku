@@ -1755,6 +1755,28 @@ fun CustomerScreen(
         val serv = viewModel.selectedService.collectAsState().value ?: viewModel.services.first()
         val ther = viewModel.selectedTherapist.collectAsState().value ?: therapists.firstOrNull { it.isOnline }
 
+        var isScheduled by remember { mutableStateOf(false) }
+        var selectedDateIndex by remember { mutableIntStateOf(0) }
+        var selectedTimeSlot by remember { mutableStateOf("10:00") }
+
+        val dateList = remember {
+            val list = mutableListOf<Triple<String, String, String>>()
+            val sdfDay = java.text.SimpleDateFormat("EEE", java.util.Locale("id", "ID"))
+            val sdfNum = java.text.SimpleDateFormat("d", java.util.Locale("id", "ID"))
+            val sdfFull = java.text.SimpleDateFormat("d MMMM yyyy", java.util.Locale("id", "ID"))
+            for (i in 0..6) {
+                val cal = java.util.Calendar.getInstance().apply { add(java.util.Calendar.DAY_OF_YEAR, i) }
+                list.add(
+                    Triple(
+                        if (i == 0) "Hari" else sdfDay.format(cal.time),
+                        if (i == 0) "Ini" else sdfNum.format(cal.time),
+                        sdfFull.format(cal.time)
+                    )
+                )
+            }
+            list
+        }
+
         AlertDialog(
             onDismissRequest = { showBookingForm = false },
             title = {
@@ -1972,6 +1994,169 @@ fun CustomerScreen(
                         shape = RoundedCornerShape(8.dp)
                     )
 
+                    // Schedule Option Header
+                    Text(
+                        text = "Waktu Layanan Pijat:",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp,
+                        color = NavyPrimary,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(if (!isScheduled) MintGreen.copy(alpha = 0.12f) else Color(0xFFF1F5F9))
+                                .border(1.5.dp, if (!isScheduled) MintGreen else Color.Transparent, RoundedCornerShape(8.dp))
+                                .clickable { isScheduled = false }
+                                .padding(10.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "Instan (Sekarang)",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp,
+                                    color = if (!isScheduled) NavyPrimary else Color.DarkGray
+                                )
+                                Text(
+                                    text = "Terapis segera berangkat",
+                                    fontSize = 9.sp,
+                                    color = if (!isScheduled) NavySecondary else Color.Gray
+                                )
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(if (isScheduled) MintGreen.copy(alpha = 0.12f) else Color(0xFFF1F5F9))
+                                .border(1.5.dp, if (isScheduled) MintGreen else Color.Transparent, RoundedCornerShape(8.dp))
+                                .clickable { isScheduled = true }
+                                .padding(10.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "Jadwalkan Pijat",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp,
+                                    color = if (isScheduled) NavyPrimary else Color.DarkGray
+                                )
+                                Text(
+                                    text = "Pilih tanggal & jam",
+                                    fontSize = 9.sp,
+                                    color = if (isScheduled) NavySecondary else Color.Gray
+                                )
+                            }
+                        }
+                    }
+
+                    if (isScheduled) {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC)),
+                            border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(10.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Text(
+                                    text = "Pilih Tanggal Appointment:",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp,
+                                    color = NavyPrimary
+                                )
+
+                                LazyRow(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    items(dateList.size) { index ->
+                                        val item = dateList[index]
+                                        val isSelected = selectedDateIndex == index
+                                        Card(
+                                            colors = CardDefaults.cardColors(
+                                                containerColor = if (isSelected) NavyPrimary else Color.White
+                                            ),
+                                            border = BorderStroke(1.dp, if (isSelected) NavyPrimary else Color(0xFFE2E8F0)),
+                                            modifier = Modifier
+                                                .width(55.dp)
+                                                .clickable { selectedDateIndex = index }
+                                        ) {
+                                            Column(
+                                                modifier = Modifier.padding(vertical = 8.dp),
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                verticalArrangement = Arrangement.Center
+                                            ) {
+                                                Text(
+                                                    text = item.first,
+                                                    fontSize = 9.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = if (isSelected) Color.White else Color.Gray
+                                                )
+                                                Spacer(modifier = Modifier.height(2.dp))
+                                                Text(
+                                                    text = item.second,
+                                                    fontSize = 13.sp,
+                                                    fontWeight = FontWeight.ExtraBold,
+                                                    color = if (isSelected) MintGreen else NavyPrimary
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Text(
+                                    text = "Pilihan Tanggal: ${dateList[selectedDateIndex].third}",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = NavySecondary
+                                )
+
+                                Text(
+                                    text = "Pilih Jam Appointment:",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 11.sp,
+                                    color = NavyPrimary
+                                )
+
+                                val timeSlots = listOf("08:00", "10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "22:00")
+                                LazyRow(
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    items(timeSlots.size) { index ->
+                                        val slot = timeSlots[index]
+                                        val isSelected = selectedTimeSlot == slot
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .background(if (isSelected) MintGreen else Color.White)
+                                                .border(1.5.dp, if (isSelected) MintGreen else Color(0xFFE2E8F0), RoundedCornerShape(6.dp))
+                                                .clickable { selectedTimeSlot = slot }
+                                                .padding(horizontal = 10.dp, vertical = 6.dp)
+                                        ) {
+                                            Text(
+                                                text = slot,
+                                                color = if (isSelected) Color.White else Color.DarkGray,
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // Promo input Code
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -2104,13 +2289,19 @@ fun CustomerScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        viewModel.placeBooking()
+                        val finalDate = if (isScheduled) dateList[selectedDateIndex].third else "Hari ini"
+                        val finalTime = if (isScheduled) selectedTimeSlot else "Sekarang (Segera)"
+                        viewModel.placeBooking(finalDate, finalTime)
                         showBookingForm = false
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MintGreen),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Pesan Sekarang & Antar", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    Text(
+                        text = if (isScheduled) "Jadwalkan Appointment" else "Pesan Sekarang & Antar",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp
+                    )
                 }
             },
             dismissButton = {
