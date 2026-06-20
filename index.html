@@ -32,6 +32,24 @@
             background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
         }
     </style>
+    <!-- Leaflet CSS and JS CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        /* Custom map styling to match Material/Tailwind theme */
+        .leaflet-container {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .leaflet-popup-content-wrapper {
+            border-radius: 1rem;
+            padding: 4px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #F1F5F9;
+        }
+        .leaflet-popup-tip {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body class="text-slate-800 antialiased overflow-x-hidden">
 
@@ -360,6 +378,98 @@
                     </p>
                 </div>
             </div>
+
+            <!-- Interactive Map Location Container -->
+            <div id="peta-interaktif" class="mt-16 bg-slateLight rounded-3xl p-6 md:p-10 border border-slate-200/80 shadow-md">
+                <div class="grid md:grid-cols-12 gap-8 items-center">
+                    <!-- Left Side Details Panel -->
+                    <div class="md:col-span-5 space-y-6 text-left">
+                        <div class="space-y-2">
+                            <span class="text-xs font-black uppercase tracking-wider text-mintGreen bg-mintGreen/10 px-3 py-1 rounded-full">Simulasi Peta Interaktif</span>
+                            <h3 class="text-2xl font-extrabold text-navyPrimary tracking-tight">Atur Titik Alamat Rumah Anda</h3>
+                            <p class="text-slate-500 text-xs md:text-sm leading-relaxed">
+                                Fitur GPS OpenStreetMap kami bekerja secara instan tanpa hambatan koordinat. Geser penanda merah di peta untuk menentukan letak penjemputan terapis yang presisi.
+                            </p>
+                        </div>
+
+                        <!-- Location Search Bar -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-navySecondary">Cari Kota / Area:</label>
+                            <div class="relative">
+                                <input type="text" id="map-search-input" value="Monas, Jakarta" placeholder="Cari nama jalan, komplek, atau kota..." class="w-full bg-white border border-slate-200 rounded-xl pl-4 pr-12 py-3 text-xs md:text-sm text-navyPrimary font-medium focus:outline-none focus:ring-2 focus:ring-mintGreen focus:border-transparent transition shadow-sm">
+                                <button type="button" id="map-search-btn" class="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-navyPrimary hover:bg-navySecondary text-white flex items-center justify-center transition focus:outline-none shadow-sm active:scale-95">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Live Detected Address Box -->
+                        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-inner space-y-3">
+                            <span class="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-mintGreen animate-ping"></span>
+                                Lokasi Presisi Terdeteksi:
+                            </span>
+                            <div class="min-h-[50px] flex items-start gap-2">
+                                <span class="text-lg mt-0.5">🏠</span>
+                                <div id="map-detected-address-loading" class="hidden">
+                                    <div class="space-y-2 py-1 w-full animate-pulse">
+                                        <div class="h-3.5 bg-slate-200 rounded w-5/6"></div>
+                                        <div class="h-3 bg-slate-200 rounded w-2/3"></div>
+                                    </div>
+                                </div>
+                                <p id="map-detected-address" class="text-xs md:text-sm font-bold text-navyPrimary leading-relaxed transition-all duration-300">
+                                    Jalan Silang Monas, Gambir, Jakarta Pusat, DKI Jakarta
+                                </p>
+                            </div>
+                            
+                            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                                <span>Lat: <strong id="map-lat" class="text-navyPrimary font-bold">-6.1754</strong></span>
+                                <span>Lng: <strong id="map-lng" class="text-navyPrimary font-bold">106.8272</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- Terapist Coverage Indicator -->
+                        <div class="flex items-center justify-between bg-emerald-50 p-3 rounded-xl border border-emerald-100 text-xs">
+                            <span class="text-slate-600 font-medium">Mitra Aktif Terdekat:</span>
+                            <span class="text-mintGreen font-extrabold flex items-center gap-1">
+                                🛵 <span id="map-closest-therapists">5 Mitra (Radius 450m)</span>
+                            </span>
+                        </div>
+
+                        <!-- Confirm Action Button -->
+                        <button type="button" id="map-use-location-btn" class="w-full bg-mintGreen hover:bg-emerald-600 text-white font-extrabold py-3.5 px-6 rounded-2xl text-xs tracking-wider transition duration-205 shadow-lg shadow-mintGreen/15 active:scale-95 focus:outline-none flex items-center justify-center gap-2">
+                            <span>Mulai Cari Terapis Di Alamat Ini</span>
+                            <svg class="w-4 h-4 stroke-current" fill="none" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Right Side Interactive Map Area -->
+                    <div class="md:col-span-7">
+                        <div class="relative bg-white p-2 md:p-3 rounded-3xl border border-slate-200 shadow-xl overflow-hidden group">
+                            <!-- Custom Floating Badge -->
+                            <div class="absolute top-6 left-6 z-[1000] bg-white/95 backdrop-blur shadow-lg border border-slate-100 px-3.5 py-2 rounded-full text-[11px] font-bold text-navyPrimary flex items-center gap-2 pointer-events-none select-none animate-bounce">
+                                <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                                <span>Seret Pin Merah Untuk Ubah Titik Alamat</span>
+                            </div>
+                            
+                            <!-- Map Div Area -->
+                            <div id="interactive-osm-map" class="w-full h-[380px] md:h-[420px] rounded-2xl bg-slate-50 relative overflow-hidden z-10">
+                                <!-- Loading backdrop -->
+                                <div id="map-loading-overlay" class="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] z-[999] flex items-center justify-center transition-opacity duration-300 pointer-events-none opacity-0">
+                                    <div class="bg-white px-5 py-3.5 rounded-2xl shadow-xl flex items-center gap-3">
+                                        <div class="w-5 h-5 border-3 border-mintGreen border-t-transparent rounded-full animate-spin"></div>
+                                        <span class="text-xs font-bold text-navyPrimary">Mencari Koordinat...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -429,6 +539,199 @@
                             <span class="font-bold text-navyPrimary text-sm">Rp 80.000</span>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Real-time Therapist Search & Showcase -->
+            <div class="mt-20 pt-16 border-t border-slate-200/60">
+                <div class="max-w-3xl mx-auto text-center mb-10 space-y-3">
+                    <span class="text-xs font-bold uppercase tracking-widest text-mintGreen">Pencarian Real-Time</span>
+                    <h3 class="text-2xl md:text-3xl font-extrabold text-navyPrimary tracking-tight font-[system-ui]">Katalog Partner Terapis PijatKu</h3>
+                    <p class="text-slate-500 text-xs md:text-sm max-w-xl mx-auto">Cari dan hubungi terapis profesional terdekat. Masukkan nama terapis atau pilih berdasarkan keahlian khusus yang Anda butuhkan secara langsung.</p>
+                    
+                    <!-- Search Input Box -->
+                    <div class="relative max-w-md mx-auto mt-6">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </span>
+                        <input type="text" id="therapist-search" class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-mintGreen focus:border-transparent text-sm text-navyPrimary placeholder-slate-400 shadow-sm transition-all" placeholder="Cari nama atau keahlian (misal: Jawa, Anak, Swedia)...">
+                    </div>
+                </div>
+
+                <!-- Therapist List Grid -->
+                <div id="therapist-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Therapist Card 1 -->
+                    <div class="therapist-card bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md duration-300 flex flex-col justify-between" data-name="Budi Santoso" data-specialty="Pijat Tradisional Jawa, Urut Capek, Refleksi Saraf Kaki">
+                        <div>
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="w-12 h-12 rounded-full bg-navyPrimary/10 flex items-center justify-center text-navyPrimary font-extrabold text-lg">B</div>
+                                <div>
+                                    <h4 class="font-bold text-navyPrimary text-sm flex items-center gap-1.5">
+                                        Budi Santoso
+                                        <span class="therapist-dot inline-block w-2.5 h-2.5 rounded-full bg-mintGreen" data-id="therapist_budi" title="Online"></span>
+                                    </h4>
+                                    <p class="text-slate-400 text-[11px] font-semibold">Terapis Senior • Pria</p>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Keahlian Utama:</span>
+                                <p class="text-slate-600 text-xs leading-relaxed font-medium">Pijat Tradisional Jawa, Urut Capek, Refleksi Saraf Kaki</p>
+                            </div>
+                        </div>
+                        <div class="border-t border-slate-50 mt-4 pt-3 flex items-center justify-between text-xs gap-2">
+                            <span class="text-amber-500 font-bold flex items-center gap-1">⭐ 4.9 <span class="text-slate-400 font-normal">(142)</span></span>
+                            <div class="flex items-center gap-2">
+                                <span class="therapist-badge px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-emerald-50 text-emerald-600 border border-emerald-150 transition-all duration-300" data-id="therapist_budi">Tersedia</span>
+                                <button class="pesan-btn bg-mintGreen hover:bg-emerald-600 text-white font-bold px-4 py-1.5 rounded-full text-xs transition duration-200 shadow-sm active:scale-95" data-id="therapist_budi" data-name="Budi Santoso" data-gender="Pria" data-rating="4.9" data-reviews="142" data-specialty="Pijat Tradisional Jawa, Urut Capek, Refleksi Saraf Kaki">Pesan</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Therapist Card 2 -->
+                    <div class="therapist-card bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md duration-300 flex flex-col justify-between" data-name="Ani Wijaya" data-specialty="Pijat Ibu & Anak, Totok Aura Wajah, Pijat Relaksasi Swedia">
+                        <div>
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="w-12 h-12 rounded-full bg-navyPrimary/10 flex items-center justify-center text-navyPrimary font-extrabold text-lg">A</div>
+                                <div>
+                                    <h4 class="font-bold text-navyPrimary text-sm flex items-center gap-1.5">
+                                        Ani Wijaya
+                                        <span class="therapist-dot inline-block w-2.5 h-2.5 rounded-full bg-mintGreen" data-id="therapist_ani" title="Online"></span>
+                                    </h4>
+                                    <p class="text-slate-400 text-[11px] font-semibold">Terapis Anak & Wanita • Wanita</p>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Keahlian Utama:</span>
+                                <p class="text-slate-600 text-xs leading-relaxed font-medium">Pijat Ibu & Anak, Totok Aura Wajah, Pijat Relaksasi Swedia</p>
+                            </div>
+                        </div>
+                        <div class="border-t border-slate-50 mt-4 pt-3 flex items-center justify-between text-xs gap-2">
+                            <span class="text-amber-500 font-bold flex items-center gap-1">⭐ 4.9 <span class="text-slate-400 font-normal">(218)</span></span>
+                            <div class="flex items-center gap-2">
+                                <span class="therapist-badge px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-emerald-50 text-emerald-600 border border-emerald-150 transition-all duration-300" data-id="therapist_ani">Tersedia</span>
+                                <button class="pesan-btn bg-mintGreen hover:bg-emerald-600 text-white font-bold px-4 py-1.5 rounded-full text-xs transition duration-200 shadow-sm active:scale-95" data-id="therapist_ani" data-name="Ani Wijaya" data-gender="Wanita" data-rating="4.9" data-reviews="218" data-specialty="Pijat Ibu & Anak, Totok Aura Wajah, Pijat Relaksasi Swedia">Pesan</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Therapist Card 3 -->
+                    <div class="therapist-card bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md duration-300 flex flex-col justify-between" data-name="Joko Susanto" data-specialty="Pijat Aromaterapi Kesehatan, Bekam Kering, Deep Tissue Therapy">
+                        <div>
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="w-12 h-12 rounded-full bg-navyPrimary/10 flex items-center justify-center text-navyPrimary font-extrabold text-lg">J</div>
+                                <div>
+                                    <h4 class="font-bold text-navyPrimary text-sm flex items-center gap-1.5">
+                                        Joko Susanto
+                                        <span class="therapist-dot inline-block w-2.5 h-2.5 rounded-full bg-mintGreen" data-id="therapist_joko" title="Online"></span>
+                                    </h4>
+                                    <p class="text-slate-400 text-[11px] font-semibold">Spesialis Otot & Saraf • Pria</p>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Keahlian Utama:</span>
+                                <p class="text-slate-600 text-xs leading-relaxed font-medium">Pijat Aromaterapi Kesehatan, Bekam Kering, Deep Tissue Therapy</p>
+                            </div>
+                        </div>
+                        <div class="border-t border-slate-50 mt-4 pt-3 flex items-center justify-between text-xs gap-2">
+                            <span class="text-amber-500 font-bold flex items-center gap-1">⭐ 4.8 <span class="text-slate-400 font-normal">(97)</span></span>
+                            <div class="flex items-center gap-2">
+                                <span class="therapist-badge px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-emerald-50 text-emerald-600 border border-emerald-150 transition-all duration-300" data-id="therapist_joko">Tersedia</span>
+                                <button class="pesan-btn bg-mintGreen hover:bg-emerald-600 text-white font-bold px-4 py-1.5 rounded-full text-xs transition duration-200 shadow-sm active:scale-95" data-id="therapist_joko" data-name="Joko Susanto" data-gender="Pria" data-rating="4.8" data-reviews="97" data-specialty="Pijat Aromaterapi Kesehatan, Bekam Kering, Deep Tissue Therapy">Pesan</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Therapist Card 4 -->
+                    <div class="therapist-card bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md duration-300 flex flex-col justify-between" data-name="Siti Rahma" data-specialty="Pijat Tradisional Bali, Kerokan, Pijat Lulur Kebugaran">
+                        <div>
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="w-12 h-12 rounded-full bg-navyPrimary/10 flex items-center justify-center text-navyPrimary font-extrabold text-lg">S</div>
+                                <div>
+                                    <h4 class="font-bold text-navyPrimary text-sm flex items-center gap-1.5">
+                                        Siti Rahma
+                                        <span class="therapist-dot inline-block w-2.5 h-2.5 rounded-full bg-mintGreen" data-id="therapist_siti" title="Online"></span>
+                                    </h4>
+                                    <p class="text-slate-400 text-[11px] font-semibold">Terapis Relaksasi & Spa • Wanita</p>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Keahlian Utama:</span>
+                                <p class="text-slate-600 text-xs leading-relaxed font-medium">Pijat Tradisional Bali, Kerokan, Pijat Lulur Kebugaran</p>
+                            </div>
+                        </div>
+                        <div class="border-t border-slate-50 mt-4 pt-3 flex items-center justify-between text-xs gap-2">
+                            <span class="text-amber-500 font-bold flex items-center gap-1">⭐ 4.9 <span class="text-slate-400 font-normal">(112)</span></span>
+                            <div class="flex items-center gap-2">
+                                <span class="therapist-badge px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-emerald-50 text-emerald-600 border border-emerald-150 transition-all duration-300" data-id="therapist_siti">Tersedia</span>
+                                <button class="pesan-btn bg-mintGreen hover:bg-emerald-600 text-white font-bold px-4 py-1.5 rounded-full text-xs transition duration-200 shadow-sm active:scale-95" data-id="therapist_siti" data-name="Siti Rahma" data-gender="Wanita" data-rating="4.9" data-reviews="112" data-specialty="Pijat Tradisional Bali, Kerokan, Pijat Lulur Kebugaran">Pesan</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Therapist Card 5 -->
+                    <div class="therapist-card bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md duration-300 flex flex-col justify-between" data-name="Rudi Hermawan" data-specialty="Terapi Kebal Pegal, Pijat Kebugaran, Kop Masuk Angin">
+                        <div>
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="w-12 h-12 rounded-full bg-navyPrimary/10 flex items-center justify-center text-navyPrimary font-extrabold text-lg">R</div>
+                                <div>
+                                    <h4 class="font-bold text-navyPrimary text-sm flex items-center gap-1.5">
+                                        Rudi Hermawan
+                                        <span class="therapist-dot inline-block w-2.5 h-2.5 rounded-full bg-red-500" data-id="therapist_rudi" title="Offline"></span>
+                                    </h4>
+                                    <p class="text-slate-400 text-[11px] font-semibold">Terapis Alternatif • Pria</p>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Keahlian Utama:</span>
+                                <p class="text-slate-600 text-xs leading-relaxed font-medium">Terapi Kebal Pegal, Pijat Kebugaran, Kop Masuk Angin</p>
+                            </div>
+                        </div>
+                        <div class="border-t border-slate-50 mt-4 pt-3 flex items-center justify-between text-xs gap-2">
+                            <span class="text-amber-500 font-bold flex items-center gap-1">⭐ 4.7 <span class="text-slate-400 font-normal">(85)</span></span>
+                            <div class="flex items-center gap-2">
+                                <span class="therapist-badge px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-red-50 text-red-650 border border-red-150 transition-all duration-300" data-id="therapist_rudi">Sedang Pijat</span>
+                                <button class="pesan-btn bg-slate-400 hover:bg-slate-500 text-white font-bold px-4 py-1.5 rounded-full text-xs transition duration-200 shadow-sm active:scale-95" data-id="therapist_rudi" data-name="Rudi Hermawan" data-gender="Pria" data-rating="4.7" data-reviews="85" data-specialty="Terapi Kebal Pegal, Pijat Kebugaran, Kop Masuk Angin">Pesan</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Therapist Card 6 -->
+                    <div class="therapist-card bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md duration-300 flex flex-col justify-between" data-name="Dewi Lestari" data-specialty="Premium Facial Massage, Totok Wajah, Pijat Relaksasi Swedia">
+                        <div>
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="w-12 h-12 rounded-full bg-navyPrimary/10 flex items-center justify-center text-navyPrimary font-extrabold text-lg">D</div>
+                                <div>
+                                    <h4 class="font-bold text-navyPrimary text-sm flex items-center gap-1.5">
+                                        Dewi Lestari
+                                        <span class="therapist-dot inline-block w-2.5 h-2.5 rounded-full bg-mintGreen" data-id="therapist_dewi" title="Online"></span>
+                                    </h4>
+                                    <p class="text-slate-400 text-[11px] font-semibold">Terapis Kecantikan • Wanita</p>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Keahlian Utama:</span>
+                                <p class="text-slate-600 text-xs leading-relaxed font-medium">Premium Facial Massage, Totok Wajah, Pijat Relaksasi Swedia</p>
+                            </div>
+                        </div>
+                        <div class="border-t border-slate-50 mt-4 pt-3 flex items-center justify-between text-xs gap-2">
+                            <span class="text-amber-500 font-bold flex items-center gap-1">⭐ 4.8 <span class="text-slate-400 font-normal">(64)</span></span>
+                            <div class="flex items-center gap-2">
+                                <span class="therapist-badge px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-emerald-50 text-emerald-600 border border-emerald-150 transition-all duration-300" data-id="therapist_dewi">Tersedia</span>
+                                <button class="pesan-btn bg-mintGreen hover:bg-emerald-600 text-white font-bold px-4 py-1.5 rounded-full text-xs transition duration-200 shadow-sm active:scale-95" data-id="therapist_dewi" data-name="Dewi Lestari" data-gender="Wanita" data-rating="4.8" data-reviews="64" data-specialty="Premium Facial Massage, Totok Wajah, Pijat Relaksasi Swedia">Pesan</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Search Empty State -->
+                <div id="therapist-empty" class="hidden text-center py-16">
+                    <span class="text-5xl">🔍</span>
+                    <h4 class="font-extrabold text-navyPrimary text-lg mt-4">Terapis Tidak Ditemukan</h4>
+                    <p class="text-slate-400 text-sm mt-1 max-w-sm mx-auto">Coba masukkan kata kunci pencarian nama atau spesialis keahlian terapis yang lain.</p>
                 </div>
             </div>
         </div>
@@ -663,6 +966,153 @@
         </div>
     </footer>
 
+    <!-- Therapist Booking Modal Dialog -->
+    <div id="booking-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navyPrimary/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
+        <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden transform scale-95 transition-all duration-300 flex flex-col max-h-[90vh]">
+            
+            <!-- Modal Header -->
+            <div class="p-6 pb-4 border-b border-slate-100 flex items-center justify-between bg-slateLight/30">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold uppercase py-1 px-2.5 rounded-full bg-mintGreen/10 text-mintGreen">Booking Flow</span>
+                    <h3 class="font-extrabold text-lg text-navyPrimary">Konfirmasi Layanan</h3>
+                </div>
+                <button id="close-booking-modal" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 transition flex items-center justify-center focus:outline-none">
+                    <svg class="w-4 h-4 stroke-current" fill="none" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body (Scrollable) -->
+            <div class="p-6 overflow-y-auto space-y-6 flex-1 text-left">
+                <!-- Therapist Profile Detail -->
+                <div class="flex items-center space-x-4 bg-slateLight/40 p-4 rounded-2xl border border-slate-100">
+                    <div id="modal-therapist-avatar" class="w-14 h-14 rounded-full bg-navyPrimary/10 flex items-center justify-center text-navyPrimary font-extrabold text-xl shadow-inner">
+                        T
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <h4 id="modal-therapist-name" class="font-bold text-navyPrimary text-base">Nama Terapis</h4>
+                            <span id="modal-therapist-gender" class="text-[10px] font-semibold bg-slate-100 px-2 py-0.5 rounded text-slate-500">Gender</span>
+                        </div>
+                        <p id="modal-therapist-specialty" class="text-xs text-slate-500 line-clamp-2 mt-1 leading-relaxed">Keahlian terapis</p>
+                        <div class="flex items-center gap-1.5 mt-2 text-xs">
+                            <span class="text-amber-500 font-bold">⭐ <span id="modal-therapist-rating">4.9</span></span>
+                            <span class="text-slate-400 font-medium">•</span>
+                            <span id="modal-therapist-reviews" class="text-slate-400 font-medium">100 ulasan</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 1: Choose Service Package -->
+                <div class="space-y-2.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-navySecondary">1. Pilih Paket Massage:</label>
+                    <select id="modal-service-select" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-navyPrimary focus:outline-none focus:ring-2 focus:ring-mintGreen focus:border-transparent transition">
+                        <option value="90000" data-name="Pijat Tradisional Jawa (90 Menit)" selected>Pijat Tradisional Jawa (90 Menit) - Rp 90.000 (Terpopuler)</option>
+                        <option value="120000" data-name="Pijat Ibu & Anak Spesial (75 Menit)">Pijat Ibu & Anak Spesial (75 Menit) - Rp 120.000</option>
+                        <option value="65000" data-name="Totok Aura & Refleksi Wajah (60 Menit)">Totok Aura & Refleksi Wajah (60 Menit) - Rp 65.000</option>
+                        <option value="80000" data-name="Refleksi Saraf Kaki & Relaksasi (60 Menit)">Refleksi Saraf Kaki & Saraf (60 Menit) - Rp 80.000</option>
+                        <option value="110000" data-name="Pijat Swedia Kebugaran (90 Menit)">Pijat Swedia Kebugaran (90 Menit) - Rp 110.000</option>
+                        <option value="130000" data-name="Pijat Tradisional Bali Premium (90 Menit)">Pijat Tradisional Bali Premium (90 Menit) - Rp 130.000</option>
+                    </select>
+                </div>
+
+                <!-- Step 2: Choose Date -->
+                <div class="space-y-2.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-navySecondary">2. Pilih Tanggal Layanan:</label>
+                    <div id="modal-date-picker" class="flex gap-2.5 overflow-x-auto pb-1 select-none">
+                        <!-- Dates loaded dynamically in JS -->
+                    </div>
+                    <p id="modal-selected-date-text" class="text-[11px] font-semibold text-mintGreen">Tanggal terpilih: Hari ini</p>
+                </div>
+
+                <!-- Step 3: Choose Time Slot -->
+                <div class="space-y-2.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-navySecondary">3. Pilih Jam Layanan:</label>
+                    <div id="modal-time-picker" class="grid grid-cols-4 gap-2">
+                        <button class="time-slot-btn border border-slate-200 rounded-lg py-2 hover:border-mintGreen text-xs font-bold text-navyPrimary bg-white active:scale-95 transition focus:outline-none" data-time="08:00">08:00</button>
+                        <button class="time-slot-btn border border-mintGreen bg-mintGreen/10 text-mintGreen rounded-lg py-2 text-xs font-bold active:scale-95 transition focus:outline-none" data-time="10:00">10:00</button>
+                        <button class="time-slot-btn border border-slate-200 rounded-lg py-2 hover:border-mintGreen text-xs font-bold text-navyPrimary bg-white active:scale-95 transition focus:outline-none" data-time="12:00">12:00</button>
+                        <button class="time-slot-btn border border-slate-200 rounded-lg py-2 hover:border-mintGreen text-xs font-bold text-navyPrimary bg-white active:scale-95 transition focus:outline-none" data-time="14:00">14:00</button>
+                        <button class="time-slot-btn border border-slate-200 rounded-lg py-2 hover:border-mintGreen text-xs font-bold text-navyPrimary bg-white active:scale-95 transition focus:outline-none" data-time="16:00">16:00</button>
+                        <button class="time-slot-btn border border-slate-200 rounded-lg py-2 hover:border-mintGreen text-xs font-bold text-navyPrimary bg-white active:scale-95 transition focus:outline-none" data-time="18:00">18:00</button>
+                        <button class="time-slot-btn border border-slate-200 rounded-lg py-2 hover:border-mintGreen text-xs font-bold text-navyPrimary bg-white active:scale-95 transition focus:outline-none" data-time="20:00">20:00</button>
+                        <button class="time-slot-btn border border-slate-200 rounded-lg py-2 hover:border-mintGreen text-xs font-bold text-navyPrimary bg-white active:scale-95 transition focus:outline-none" data-time="22:00">22:00</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Pay Method -->
+                <div class="space-y-2.5">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-navySecondary">4. Metode Pembayaran:</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center gap-3 p-3.5 border border-mintGreen bg-mintGreen/10 rounded-xl cursor-pointer select-none transition" id="pay-cash-container">
+                            <input type="radio" name="pay-method" value="CASH" checked class="text-mintGreen focus:ring-mintGreen focus:ring-offset-0">
+                            <span class="text-xs font-bold text-navyPrimary flex flex-col text-left">
+                                Cash on Delivery
+                                <span class="text-[9px] font-medium text-slate-400">Bayar di tempat</span>
+                            </span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3.5 border border-slate-100 bg-white rounded-xl cursor-pointer select-none transition" id="pay-qris-container">
+                            <input type="radio" name="pay-method" value="QRIS" class="text-mintGreen focus:ring-mintGreen focus:ring-offset-0">
+                            <span class="text-xs font-bold text-navyPrimary flex flex-col text-left">
+                                QRIS Mandiri / OVO 
+                                <span class="text-[9px] font-medium text-slate-400">Cashless aman</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Pricing Calculation Card -->
+                <div class="bg-navyPrimary/5 p-4 rounded-2xl border border-navyPrimary/10 flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">Total Pembayaran:</span>
+                        <h5 class="text-xl font-black text-navyPrimary" id="modal-price-display">Rp 90.000</h5>
+                    </div>
+                    <span class="text-[10px] font-bold bg-mintGreen py-1.5 px-3 rounded-full text-white tracking-wide shadow-sm">BEBAS BIAYA TRANSPORT</span>
+                </div>
+            </div>
+
+            <!-- Booking Success Animation Screen (Overlaid inside modal when clicked confirm) -->
+            <div id="booking-success-view" class="absolute inset-0 bg-white z-20 flex flex-col items-center justify-center p-8 text-center hidden opacity-0 transition-opacity duration-300">
+                <div class="w-16 h-16 bg-emerald-50 text-mintGreen rounded-full flex items-center justify-center mb-5 shadow-md border border-emerald-100">
+                    <svg class="w-8 h-8 stroke-current text-mintGreen" fill="none" stroke-width="3" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                <h4 class="text-xl font-black text-navyPrimary tracking-tight">Booking Berhasil Dibuat!</h4>
+                <p class="text-slate-500 text-[11px] mt-2.5 leading-relaxed max-w-sm">
+                    Terapis pilihan Anda <strong id="success-therapist-name" class="text-navyPrimary font-bold">Ani Wijaya</strong> telah menerima pesanan untuk paket <em id="success-service-name" class="font-bold text-mintGreen not-italic">Pijat Tradisional Jawa</em> pada <strong id="success-date-time" class="text-navyPrimary">Hari Ini pukul 10:00</strong>.
+                </p>
+                <div class="bg-slateLight/50 p-4 rounded-2xl border border-slate-100/80 w-full mt-4 text-[11px] text-left space-y-1.5">
+                    <p class="text-slate-600 flex justify-between"><span>Nomor Booking:</span> <strong class="text-navyPrimary font-mono">PJK-872429A</strong></p>
+                    <p class="text-slate-600 flex justify-between"><span>Metode Bayar:</span> <strong id="success-payment-method" class="text-navyPrimary font-semibold">CASH</strong></p>
+                    <p class="text-slate-600 flex justify-between"><span>Status:</span> <strong class="text-mintGreen font-semibold">MENUNGGU TERAPIS</strong></p>
+                </div>
+                <div class="mt-6 flex flex-col gap-2.5 w-full">
+                    <a href="#unduh" id="success-download-btn" class="w-full bg-mintGreen hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl text-xs tracking-wide transition shadow-lg shadow-mintGreen/20">
+                        Unduh Aplikasi & Lacak Terapis Live
+                    </a>
+                    <button id="success-done-btn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-2.5 px-4 rounded-xl text-xs transition">
+                        Tutup Halaman Konfirmasi
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-slate-100 bg-white flex items-center justify-between gap-4">
+                <button id="cancel-booking-modal" class="px-5 py-3 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 text-xs font-bold transition">
+                    Batalkan
+                </button>
+                <button id="confirm-booking-btn" class="flex-1 bg-mintGreen hover:bg-emerald-600 text-white font-extrabold py-3 px-6 rounded-xl text-xs transition shadow-lg shadow-mintGreen/15 active:scale-95 focus:outline-none flex items-center justify-center gap-2">
+                    <span>Konfirmasi Booking</span>
+                    <svg class="w-4 h-4 ml-1 stroke-current" fill="none" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Promotion Carousel Script -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -811,6 +1261,556 @@
                 updateCarousel();
                 startAutoplay();
             }, 100);
+        });
+    </script>
+
+    <!-- Therapist Real-time Filter & Booking Modal Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. Therapist Search Filter Logic
+            const searchInput = document.getElementById("therapist-search");
+            const therapistCards = document.querySelectorAll(".therapist-card");
+            const emptyState = document.getElementById("therapist-empty");
+            const therapistGrid = document.getElementById("therapist-grid");
+
+            if (searchInput) {
+                searchInput.addEventListener("input", function(e) {
+                    const query = e.target.value.toLowerCase().trim();
+                    let matchCount = 0;
+
+                    therapistCards.forEach(card => {
+                        const name = card.getAttribute("data-name").toLowerCase();
+                        const specialty = card.getAttribute("data-specialty").toLowerCase();
+
+                        if (name.includes(query) || specialty.includes(query)) {
+                            card.classList.remove("hidden");
+                            card.style.display = "flex"; // Keep flex layout intact
+                            matchCount++;
+                        } else {
+                            card.classList.add("hidden");
+                            card.style.display = "none";
+                        }
+                    });
+
+                    if (matchCount === 0) {
+                        emptyState.style.display = "block";
+                        therapistGrid.classList.add("hidden");
+                        therapistGrid.style.display = "none";
+                    } else {
+                        emptyState.style.display = "none";
+                        therapistGrid.classList.remove("hidden");
+                        therapistGrid.style.display = "grid";
+                    }
+                });
+            }
+
+            // 2. Booking Modal Interaction Logic
+            const bookingModal = document.getElementById("booking-modal");
+            const closeBookingModal = document.getElementById("close-booking-modal");
+            const cancelBookingModal = document.getElementById("cancel-booking-modal");
+            const confirmBookingBtn = document.getElementById("confirm-booking-btn");
+            const bookingSuccessView = document.getElementById("booking-success-view");
+            const successDoneBtn = document.getElementById("success-done-btn");
+
+            // Modal Fields
+            const modalTherapistAvatar = document.getElementById("modal-therapist-avatar");
+            const modalTherapistName = document.getElementById("modal-therapist-name");
+            const modalTherapistGender = document.getElementById("modal-therapist-gender");
+            const modalTherapistSpecialty = document.getElementById("modal-therapist-specialty");
+            const modalTherapistRating = document.getElementById("modal-therapist-rating");
+            const modalTherapistReviews = document.getElementById("modal-therapist-reviews");
+
+            const modalServiceSelect = document.getElementById("modal-service-select");
+            const modalPriceDisplay = document.getElementById("modal-price-display");
+
+            // Success Fields
+            const successTherapistName = document.getElementById("success-therapist-name");
+            const successServiceName = document.getElementById("success-service-name");
+            const successDateTime = document.getElementById("success-date-time");
+            const successPaymentMethod = document.getElementById("success-payment-method");
+
+            // Booking selections state
+            let selectedTimeStr = "10:00"; // default active slot
+            let selectedDateText = "Hari ini";
+            let paymentMethod = "CASH";
+
+            // Helper to format rupiah
+            function formatRupiah(value) {
+                return "Rp " + parseInt(value).toLocaleString("id-ID");
+            }
+
+            // Open Modal Handler
+            function openBooking(btn) {
+                const id = btn.getAttribute("data-id");
+                const name = btn.getAttribute("data-name");
+                const gender = btn.getAttribute("data-gender");
+                const rating = btn.getAttribute("data-rating");
+                const reviews = btn.getAttribute("data-reviews");
+                const specialty = btn.getAttribute("data-specialty");
+
+                // Inject Therapist Info
+                modalTherapistName.textContent = name;
+                modalTherapistGender.textContent = gender;
+                modalTherapistAvatar.textContent = name.charAt(0);
+                modalTherapistSpecialty.textContent = specialty;
+                modalTherapistRating.textContent = rating;
+                modalTherapistReviews.textContent = `${reviews} ulasan`;
+
+                // Set preselection defaults
+                // Select custom service based on therapist skills
+                if (specialty.includes("Ibu & Anak") || name.includes("Ani")) {
+                    modalServiceSelect.value = "120000";
+                } else if (specialty.includes("Bali")) {
+                    modalServiceSelect.value = "130000";
+                } else if (specialty.includes("Swedia")) {
+                    modalServiceSelect.value = "110000";
+                } else if (specialty.includes("Refleksi")) {
+                    modalServiceSelect.value = "80000";
+                } else if (specialty.includes("Totok")) {
+                    modalServiceSelect.value = "65000";
+                } else {
+                    modalServiceSelect.value = "90000";
+                }
+
+                // Update price display automatically
+                modalPriceDisplay.textContent = formatRupiah(modalServiceSelect.value);
+
+                // Reset modal states
+                bookingSuccessView.classList.add("hidden");
+                bookingSuccessView.classList.remove("opacity-100");
+                bookingSuccessView.style.opacity = "0";
+
+                // Show modal overlay with animations
+                bookingModal.classList.remove("pointer-events-none", "opacity-0");
+                bookingModal.querySelector(".relative").classList.remove("scale-95");
+                bookingModal.querySelector(".relative").classList.add("scale-100");
+                bookingModal.classList.add("opacity-100");
+
+                // Dynamic Date Generation (Next 7 days)
+                populateBookingDates();
+            }
+
+            // Close Modal Handler
+            function closeModal() {
+                bookingModal.classList.add("pointer-events-none", "opacity-0");
+                bookingModal.classList.remove("opacity-100");
+                bookingModal.querySelector(".relative").classList.remove("scale-100");
+                bookingModal.querySelector(".relative").classList.add("scale-95");
+            }
+
+            // Listener for all "Pesan"-btn across grid
+            document.addEventListener("click", function(e) {
+                if (e.target.classList.contains("pesan-btn") || e.target.closest(".pesan-btn")) {
+                    const button = e.target.classList.contains("pesan-btn") ? e.target : e.target.closest(".pesan-btn");
+                    openBooking(button);
+                }
+            });
+
+            // Close Triggers
+            closeBookingModal.addEventListener("click", closeModal);
+            cancelBookingModal.addEventListener("click", closeModal);
+            bookingModal.addEventListener("click", function(e) {
+                if (e.target === bookingModal) closeModal();
+            });
+
+            // Service Package Change Update Price
+            modalServiceSelect.addEventListener("change", function() {
+                modalPriceDisplay.textContent = formatRupiah(this.value);
+            });
+
+            // Dynamic Date Picker Builder
+            function populateBookingDates() {
+                const datePicker = document.getElementById("modal-date-picker");
+                const dateText = document.getElementById("modal-selected-date-text");
+                if (!datePicker) return;
+
+                datePicker.innerHTML = "";
+                const daysShort = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+                const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+
+                selectedDateText = "Hari ini";
+                dateText.innerHTML = `Tanggal terpilih: <span class="font-extrabold text-navyPrimary">Hari ini</span>`;
+
+                for (let i = 0; i < 7; i++) {
+                    const cal = new Date();
+                    cal.setDate(cal.getDate() + i);
+
+                    const isToday = i === 0;
+                    const dayLabel = isToday ? "Hari" : daysShort[cal.getDay()];
+                    const numLabel = cal.getDate();
+                    const monthLabel = months[cal.getMonth()];
+                    const fullDateStr = isToday ? "Hari ini" : `${numLabel} ${monthLabel}`;
+
+                    const card = document.createElement("button");
+                    card.type = "button";
+                    card.className = `flex-shrink-0 flex flex-col items-center justify-center w-14 py-2.5 border rounded-xl transition-all duration-200 select-none ${isToday ? 'bg-navyPrimary text-white border-navyPrimary shadow-sm shadow-navyPrimary/20' : 'bg-slateLight/50 text-navyPrimary border-slate-200/80 hover:border-mintGreen'}`;
+                    card.innerHTML = `
+                        <span class="text-[9px] font-bold uppercase tracking-wider ${isToday ? 'text-white/70' : 'text-slate-400'}">${dayLabel}</span>
+                        <span class="text-sm font-black mt-0.5">${numLabel}</span>
+                    `;
+
+                    card.addEventListener("click", function() {
+                        const allCards = datePicker.querySelectorAll("button");
+                        allCards.forEach(c => {
+                            c.className = "flex-shrink-0 flex flex-col items-center justify-center w-14 py-2.5 border rounded-xl transition-all duration-200 select-none bg-slateLight/50 text-navyPrimary border-slate-200/80 hover:border-mintGreen";
+                            c.querySelector("span:first-child").className = "text-[9px] font-bold uppercase tracking-wider text-slate-400";
+                        });
+
+                        card.className = "flex-shrink-0 flex flex-col items-center justify-center w-14 py-2.5 border rounded-xl transition-all duration-200 select-none bg-navyPrimary text-white border-navyPrimary shadow-sm shadow-navyPrimary/20";
+                        card.querySelector("span:first-child").className = "text-[9px] font-bold uppercase tracking-wider text-white/70";
+
+                        selectedDateText = fullDateStr;
+                        dateText.innerHTML = `Tanggal terpilih: <span class="font-extrabold text-navyPrimary">${fullDateStr}</span>`;
+                    });
+
+                    datePicker.appendChild(card);
+                }
+            }
+
+            // Time Slots Click Handlers
+            const timeButtons = document.querySelectorAll(".time-slot-btn");
+            timeButtons.forEach(btn => {
+                btn.addEventListener("click", function() {
+                    timeButtons.forEach(b => {
+                        b.className = "time-slot-btn border border-slate-200 rounded-lg py-2 hover:border-mintGreen text-xs font-bold text-navyPrimary bg-white active:scale-95 transition focus:outline-none";
+                    });
+                    btn.className = "time-slot-btn border border-mintGreen bg-mintGreen/10 text-mintGreen rounded-lg py-2 text-xs font-bold active:scale-95 transition focus:outline-none";
+                    selectedTimeStr = btn.getAttribute("data-time");
+                });
+            });
+
+            // Payment Methods Style Sync
+            const cashRadio = document.querySelector('input[value="CASH"]');
+            const qrisRadio = document.querySelector('input[value="QRIS"]');
+            const cashContainer = document.getElementById("pay-cash-container");
+            const qrisContainer = document.getElementById("pay-qris-container");
+
+            function updatePaymentStyle() {
+                if (cashRadio.checked) {
+                    paymentMethod = "CASH";
+                    cashContainer.className = "flex items-center gap-3 p-3.5 border border-mintGreen bg-mintGreen/10 rounded-xl cursor-pointer select-none transition";
+                    qrisContainer.className = "flex items-center gap-3 p-3.5 border border-slate-100 bg-white rounded-xl cursor-pointer select-none transition";
+                } else {
+                    paymentMethod = "QRIS";
+                    cashContainer.className = "flex items-center gap-3 p-3.5 border border-slate-100 bg-white rounded-xl cursor-pointer select-none transition";
+                    qrisContainer.className = "flex items-center gap-3 p-3.5 border border-mintGreen bg-mintGreen/10 rounded-xl cursor-pointer select-none transition";
+                }
+            }
+
+            if (cashRadio && qrisRadio) {
+                cashRadio.addEventListener("change", updatePaymentStyle);
+                qrisRadio.addEventListener("change", updatePaymentStyle);
+            }
+
+            // Confirm Booking Click Transition
+            confirmBookingBtn.addEventListener("click", function() {
+                // Collect selected values
+                const therapistName = modalTherapistName.textContent;
+                const serviceOption = modalServiceSelect.options[modalServiceSelect.selectedIndex];
+                const serviceName = serviceOption.getAttribute("data-name") || "Massage Premium";
+
+                // Update success window content
+                successTherapistName.textContent = therapistName;
+                successServiceName.textContent = serviceName;
+                successDateTime.textContent = `${selectedDateText} pukul ${selectedTimeStr}`;
+                successPaymentMethod.textContent = paymentMethod === "CASH" ? "CASH ON DELIVERY (Bayar Di Tempat)" : "QRIS MANDIRI / OVO (Cashless)";
+
+                // Show Success View inside modal frame
+                bookingSuccessView.classList.remove("hidden");
+                // Trigger smooth fade-in
+                setTimeout(() => {
+                    bookingSuccessView.classList.add("opacity-100");
+                    bookingSuccessView.style.opacity = "1";
+                }, 10);
+            });
+
+            // Success Done Handler
+            successDoneBtn.addEventListener("click", closeModal);
+
+            // 3. Real-time Status Badge Simulation
+            const therapistsToSimulate = ["therapist_budi", "therapist_ani", "therapist_joko", "therapist_siti", "therapist_rudi", "therapist_dewi"];
+            const statuses = [
+                {
+                    text: "Tersedia",
+                    dotClass: "bg-mintGreen",
+                    badgeClass: "bg-emerald-50 text-emerald-600 border border-emerald-250/30",
+                    btnClass: "bg-mintGreen hover:bg-emerald-600 cursor-pointer"
+                },
+                {
+                    text: "Menuju Lokasi",
+                    dotClass: "bg-blue-500",
+                    badgeClass: "bg-blue-50 text-blue-600 border border-blue-250/30",
+                    btnClass: "bg-blue-500 hover:bg-blue-600 cursor-pointer"
+                },
+                {
+                    text: "Sedang Pijat",
+                    dotClass: "bg-orange-500",
+                    badgeClass: "bg-orange-50 text-orange-600 border border-orange-250/30",
+                    btnClass: "bg-slate-400 hover:bg-slate-500 cursor-not-allowed opacity-80"
+                }
+            ];
+
+            // Initialize starting states
+            const therapistStates = {
+                "therapist_budi": 0, // Tersedia
+                "therapist_ani": 0,  // Tersedia
+                "therapist_joko": 0, // Tersedia
+                "therapist_siti": 0, // Tersedia
+                "therapist_rudi": 2, // Sedang Pijat
+                "therapist_dewi": 0  // Tersedia
+            };
+
+            function updateTherapistUI(id, stateIndex) {
+                const dot = document.querySelector(`.therapist-dot[data-id="${id}"]`);
+                const badge = document.querySelector(`.therapist-badge[data-id="${id}"]`);
+                const btn = document.querySelector(`.pesan-btn[data-id="${id}"]`);
+                const state = statuses[stateIndex];
+
+                if (!state) return;
+
+                // Update dot
+                if (dot) {
+                    dot.className = `therapist-dot inline-block w-2.5 h-2.5 rounded-full transition-colors duration-500 ${state.dotClass}`;
+                    dot.title = state.text;
+                }
+
+                // Update badge
+                if (badge) {
+                    badge.className = `therapist-badge px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide border transition-all duration-500 flex items-center gap-1.5 ${state.badgeClass}`;
+                    badge.innerHTML = `<span class="inline-block w-1.5 h-1.5 rounded-full animate-pulse ${state.dotClass}"></span>${state.text}`;
+                }
+
+                // Update button representation
+                if (btn) {
+                    btn.className = `pesan-btn text-white font-bold px-4 py-1.5 rounded-full text-xs transition duration-200 shadow-sm active:scale-95 ${state.btnClass}`;
+                }
+            }
+
+            // Apply initial UI states
+            Object.keys(therapistStates).forEach(id => {
+                updateTherapistUI(id, therapistStates[id]);
+            });
+
+            // Start periodic simulation every 5 seconds to change 1 therapist state
+            setInterval(() => {
+                const randIndex = Math.floor(Math.random() * therapistsToSimulate.length);
+                const id = therapistsToSimulate[randIndex];
+                
+                // Advance state cycle
+                therapistStates[id] = (therapistStates[id] + 1) % statuses.length;
+                
+                // Apply soft visual pulse animation on the card
+                const btn = document.querySelector(`.pesan-btn[data-id="${id}"]`);
+                if (btn) {
+                    const card = btn.closest(".therapist-card");
+                    if (card) {
+                        card.classList.add("scale-[1.01]", "border-mintGreen/30", "shadow-sm");
+                        setTimeout(() => {
+                            card.classList.remove("scale-[1.01]", "border-mintGreen/30", "shadow-sm");
+                        }, 800);
+                    }
+                }
+
+                updateTherapistUI(id, therapistStates[id]);
+            }, 5000);
+
+            // 4. OpenStreetMap Interactive Locator Map
+            const mapContainer = document.getElementById("interactive-osm-map");
+            if (mapContainer) {
+                // Initialize map centered at Jakarta Monas
+                const map = L.map("interactive-osm-map", {
+                    center: [-6.1754, 106.8272],
+                    zoom: 15,
+                    zoomControl: false
+                });
+
+                // Add nice zoom control
+                L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+                // Add OSM Base Layer tiles
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+
+                // Create beautiful pulsing red pin icon
+                const mapPinIcon = L.divIcon({
+                    html: `
+                        <div class="relative flex flex-col items-center justify-center">
+                            <span class="absolute inline-flex h-9 w-9 animate-ping rounded-full bg-rose-500 opacity-60"></span>
+                            <div class="w-8 h-8 rounded-full bg-rose-600 text-white flex items-center justify-center border-2 border-white shadow-lg font-bold text-sm">
+                                📍
+                            </div>
+                            <div class="w-2.5 h-2.5 bg-rose-600 border-2 border-white rounded-full -mt-1 shadow-md"></div>
+                        </div>
+                    `,
+                    className: 'custom-map-pin',
+                    iconSize: [36, 42],
+                    iconAnchor: [18, 42],
+                    popupAnchor: [0, -38]
+                });
+
+                // Add draggable marker
+                const mainMarker = L.marker([-6.1754, 106.8272], {
+                    draggable: true,
+                    icon: mapPinIcon
+                }).addTo(map);
+
+                // Default popup
+                const initialPop = L.popup({ closeButton: false })
+                    .setContent('<div class="p-1 font-bold text-xs text-navyPrimary text-center">Geser saya ke lokasi Anda!</div>');
+                mainMarker.bindPopup(initialPop).openPopup();
+
+                // Elements pointers
+                const mapLatVal = document.getElementById("map-lat");
+                const mapLngVal = document.getElementById("map-lng");
+                const mapAddrText = document.getElementById("map-detected-address");
+                const mapAddrLoading = document.getElementById("map-detected-address-loading");
+                const mapClosestCount = document.getElementById("map-closest-therapists");
+                const mapSearchField = document.getElementById("map-search-input");
+                const mapSearchButton = document.getElementById("map-search-btn");
+                const mapUseLocationButton = document.getElementById("map-use-location-btn");
+                const mapLoadingOverlay = document.getElementById("map-loading-overlay");
+
+                // Helper to change loading skeleton status
+                function setAddressLoading(isLoading) {
+                    if (isLoading) {
+                        mapAddrText.classList.add("hidden");
+                        mapAddrLoading.classList.remove("hidden");
+                    } else {
+                        mapAddrText.classList.remove("hidden");
+                        mapAddrLoading.classList.add("hidden");
+                    }
+                }
+
+                // Reverse geocoding worker
+                async function updateMarkerLocationData(lat, lng) {
+                    mapLatVal.textContent = lat.toFixed(5);
+                    mapLngVal.textContent = lng.toFixed(5);
+                    setAddressLoading(true);
+
+                    // Update dynamic stats simulation
+                    const distance = (Math.random() * 300 + 150).toFixed(0);
+                    const activeCount = Math.floor(Math.random() * 5) + 3;
+                    mapClosestCount.textContent = `${activeCount} Mitra (Radius ${distance}m)`;
+
+                    try {
+                        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`, {
+                            headers: {
+                                "Accept-Language": "id,en",
+                                "User-Agent": "PijatKuGPSApp/1.0"
+                            }
+                        });
+                        const data = await response.json();
+                        if (data && data.display_name) {
+                            const trimmedAddr = data.display_name;
+                            mapAddrText.textContent = trimmedAddr;
+                            // Bind details back to Leaflet popup
+                            mainMarker.setPopupContent(`
+                                <div class="p-1 px-1.5 text-navyPrimary leading-snug">
+                                    <p class="text-[10px] font-black uppercase text-mintGreen tracking-wider">📍 Titik Penjemputan:</p>
+                                    <p class="font-bold text-xs mt-0.5 line-clamp-2 max-w-[200px]">${data.name || trimmedAddr.split(',')[0] || 'Alamat Anda'}</p>
+                                    <p class="text-[9px] text-slate-400 font-medium mt-1">Koordinat: ${lat.toFixed(4)}, ${lng.toFixed(4)}</p>
+                                </div>
+                            `).openPopup();
+                        } else {
+                            mapAddrText.textContent = `Koordinat Lapangan (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                        }
+                    } catch (err) {
+                        console.error("Geocoding failed, fallback to coordinate label", err);
+                        mapAddrText.textContent = `Koordinat Lapangan (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                    } finally {
+                        setAddressLoading(false);
+                    }
+                }
+
+                // Listeners for marker drag
+                mainMarker.on("drag", function(e) {
+                    const coord = e.latlng;
+                    mapLatVal.textContent = coord.lat.toFixed(5);
+                    mapLngVal.textContent = coord.lng.toFixed(5);
+                });
+
+                mainMarker.on("dragend", function(e) {
+                    const coord = e.target.getLatLng();
+                    updateMarkerLocationData(coord.lat, coord.lng);
+                });
+
+                // Address Search Handler
+                async function performGeocodingQuery() {
+                    const query = mapSearchField.value.trim();
+                    if (!query) return;
+
+                    mapLoadingOverlay.classList.remove("opacity-0", "pointer-events-none");
+                    setAddressLoading(true);
+
+                    try {
+                        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`, {
+                            headers: {
+                                "Accept-Language": "id,en",
+                                "User-Agent": "PijatKuGPSApp/1.0"
+                            }
+                        });
+                        const results = await response.json();
+                        if (results && results.length > 0) {
+                            const match = results[0];
+                            const lat = parseFloat(match.lat);
+                            const lng = parseFloat(match.lon);
+
+                            // Move map and marker
+                            map.setView([lat, lng], 15);
+                            mainMarker.setLatLng([lat, lng]);
+
+                            // Trigger update info
+                            await updateMarkerLocationData(lat, lng);
+                        } else {
+                            alert("Lokasi tidak ditemukan. Silakan masukkan kata kunci lainnya.");
+                        }
+                    } catch (err) {
+                        console.error("Search geocoding error", err);
+                        alert("Gagal melakukan pencarian karena kendala jaringan.");
+                    } finally {
+                        mapLoadingOverlay.classList.add("opacity-0", "pointer-events-none");
+                        setAddressLoading(false);
+                    }
+                }
+
+                mapSearchButton.addEventListener("click", performGeocodingQuery);
+                mapSearchField.addEventListener("keydown", function(e) {
+                    if (e.key === "Enter") {
+                        performGeocodingQuery();
+                    }
+                });
+
+                // Set initial call logic
+                updateMarkerLocationData(-6.1754, 106.8272);
+
+                // Use current location lock mechanism
+                mapUseLocationButton.addEventListener("click", function() {
+                    const finalAddrText = mapAddrText.textContent;
+                    
+                    // Style notification banner directly on top bar
+                    const toast = document.createElement("div");
+                    toast.className = "fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/95 backdrop-blur-md border border-slate-800 text-white z-[9999] px-6 py-4 rounded-2xl flex items-center gap-3.5 shadow-2xl animate-bounce max-w-sm md:max-w-md w-[90%]";
+                    toast.innerHTML = `
+                        <span class="text-xl">✅</span>
+                        <div class="text-left text-xs text-slate-100 leading-relaxed">
+                            <strong class="block text-mintGreen font-extrabold uppercase text-[10px] tracking-wider">Alamat Anda Terkunci</strong>
+                            ${finalAddrText}
+                        </div>
+                    `;
+                    document.body.appendChild(toast);
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 4000);
+
+                    // Auto scroll to therapist catalog
+                    const catalogElement = document.getElementById("layanan");
+                    if (catalogElement) {
+                        catalogElement.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            }
         });
     </script>
 
