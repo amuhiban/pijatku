@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PijatKu - Layanan Jasa Pijat Panggilan Profesional & Terpercaya</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navyPrimary: '#1E293B',
+                        navySecondary: '#334155',
+                        accentGold: '#EAB308',
+                        mintGreen: '#10B981',
+                        slateLight: '#F8FAFC'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F8FAFC;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased overflow-x-hidden">
+
+    <!-- Header / Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-navyPrimary/20">
+                    P
+                </div>
+                <span class="font-extrabold text-2xl tracking-tight text-navyPrimary">Pijat<span class="text-mintGreen">Ku</span></span>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8 font-semibold text-sm text-navySecondary">
+                <a href="#fitur" class="hover:text-mintGreen transition">Fitur Unggulan</a>
+                <a href="#layanan" class="hover:text-mintGreen transition">Layanan & Terapis</a>
+                <a href="#unduh" class="hover:text-mintGreen transition">Unduh Aplikasi</a>
+            </nav>
+            <div>
+                <a href="#unduh" class="bg-navyPrimary hover:bg-opacity-90 text-white font-semibold text-sm px-6 py-3 rounded-full transition shadow-md shadow-navyPrimary/10">
+                    Unduh Sekarang
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 gradient-bg text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.15),transparent_45%)]"></div>
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
+            <!-- Hero Text -->
+            <div class="space-y-6">
+                <div class="inline-flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-full border border-white/10 text-xs font-semibold text-mintGreen">
+                    <span>✨</span>
+                    <span>Layanan Pijat Panggilan No. 1 di Indonesia</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
+                    Tubuh Bugar, Pikiran Segar Tanpa Perlu Keluar <span class="text-transparent bg-clip-text bg-gradient-to-r from-mintGreen to-green-400">Rumah</span>.
+                </h1>
+                <p class="text-slate-300 text-lg leading-relaxed max-w-lg">
+                    Nikmati layanan pijat profesional, terapi kebugaran, dan relaksasi eksklusif dari terapis berpengalaman bersertifikasi langsung ke lokasi Anda.
+                </p>
+                <div class="flex flex-wrap gap-4 pt-4">
+                    <a href="#unduh" class="bg-mintGreen hover:bg-emerald-600 text-white font-bold px-8 py-4 rounded-full transition flex items-center space-x-3 shadow-lg shadow-mintGreen/20">
+                        <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>
+                        <span>Unduh Aplikasi Android</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-6 pt-6 border-t border-white/10">
+                    <div>
+                        <h4 class="text-2xl font-bold text-mintGreen">4.9/5★</h4>
+                        <p class="text-xs text-slate-400">Rating Google Play</p>
+                    </div>
+                    <div class="h-8 w-px bg-white/10"></div>
+                    <div>
+                        <h4 class="text-2xl font-bold text-mintGreen">10k+</h4>
+                        <p class="text-xs text-slate-400">Total Pengguna Aktif</p>
+                    </div>
+                    <div class="h-8 w-px bg-white/10"></div>
+                    <div>
+                        <h4 class="text-2xl font-bold text-mintGreen">100%</h4>
+                        <p class="text-xs text-slate-400">Terapis Bersertifikasi</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- App Mockup Concept -->
+            <div class="flex justify-center relative">
+                <!-- Decorative Circle -->
+                <div class="absolute w-[350px] h-[350px] rounded-full bg-mintGreen/10 blur-[80px] -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+                <!-- Phone Frame Container -->
+                <div class="relative w-[300px] h-[600px] bg-slate-900 rounded-[40px] p-4 shadow-2xl border-4 border-slate-700 overflow-hidden transform hover:scale-[1.02] transition duration-500">
+                    <!-- Phone Camera Notch -->
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 h-6 w-32 bg-slate-900 rounded-b-2xl z-20"></div>
+                    <!-- App Interface Simulation -->
+                    <div class="w-full h-full bg-slateLight rounded-[28px] overflow-hidden flex flex-col pt-6 text-slate-800">
+                        <!-- Simulated Top Bar -->
+                        <div class="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
+                            <span class="text-xs font-extrabold text-navyPrimary">PijatKu App 💆‍♂️</span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-mintGreen"></span>
+                        </div>
+                        <!-- Mini Content Simulator -->
+                        <div class="p-4 space-y-4 flex-1 overflow-y-auto text-left">
+                            <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-sm space-y-2">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-2 h-2 rounded-full bg-orange-500"></div>
+                                    <span class="text-[10px] font-bold text-slate-500">PROMO HARI INI</span>
+                                </div>
+                                <h5 class="text-xs font-bold text-navyPrimary">Diskon Akhir Pekan 25%</h5>
+                                <p class="text-[9px] text-slate-400">Gunakan kupon sehat untuk tubuh lebih bugar hari ini.</p>
+                            </div>
+
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Layanan Paling Populer</p>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="bg-white p-2.5 rounded-lg border border-slate-100 text-center shadow-sm">
+                                    <span class="text-lg">💆‍♂️</span>
+                                    <h6 class="text-[9px] font-bold text-navyPrimary mt-1">Pijat Jawa</h6>
+                                    <span class="text-[8px] bg-slate-100 text-slate-600 px-1 rounded">90m</span>
+                                </div>
+                                <div class="bg-white p-2.5 rounded-lg border border-slate-100 text-center shadow-sm">
+                                    <span class="text-lg">👶</span>
+                                    <h6 class="text-[9px] font-bold text-navyPrimary mt-1">Ibu & Anak</h6>
+                                    <span class="text-[8px] bg-slate-100 text-slate-600 px-1 rounded">60m</span>
+                                </div>
+                            </div>
+
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Terapis Profesional Terdekat</p>
+                            
+                            <!-- Therapist Small List Row -->
+                            <div class="bg-white p-2.5 rounded-xl border border-slate-100 shadow-sm flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-xs text-navyPrimary">
+                                    A
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-1.5">
+                                        <h6 class="text-[9px] font-bold text-navyPrimary">Ani Wijaya</h6>
+                                        <span class="text-[7px] bg-green-100 text-green-700 px-1 rounded">Online</span>
+                                    </div>
+                                    <span class="text-[8px] text-slate-400">Pijat Relaksasi • ★ 4.9</span>
+                                </div>
+                                <button class="bg-navyPrimary text-[8px] text-white px-2 py-1 rounded-full font-bold">Pesan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- App Features Section -->
+    <section id="fitur" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+                <span class="text-xs font-bold uppercase tracking-widest text-mintGreen">Mengapa Memilih Kami</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-navyPrimary">
+                    Sistem Pemesanan Cerdas, Nyaman, & Transparan
+                </h2>
+                <p class="text-slate-500 leading-relaxed text-sm md:text-base">
+                    PijatKu mengkombinasikan teknologi canggih dengan kualifikasi layanan terbaik untuk kenyamanan terapi kesehatan keluarga Anda.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Feature Card 1 -->
+                <div class="bg-slateLight p-8 rounded-2xl border border-slate-100 hover:shadow-xl transition duration-300 space-y-4">
+                    <div class="w-12 h-12 bg-mintGreen/10 rounded-xl flex items-center justify-center text-mintGreen text-2xl font-bold">
+                        📍
+                    </div>
+                    <h3 class="text-xl font-bold text-navyPrimary">Pencarian Lokasi Presisi</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Terintegrasi dengan OpenStreetMap untuk menentukan titik jemput terapis secara akurat tanpa kendala koordinat.
+                    </p>
+                </div>
+
+                <!-- Feature Card 2 -->
+                <div class="bg-slateLight p-8 rounded-2xl border border-slate-100 hover:shadow-xl transition duration-300 space-y-4">
+                    <div class="w-12 h-12 bg-mintGreen/10 rounded-xl flex items-center justify-center text-mintGreen text-2xl font-bold">
+                        ⭐
+                    </div>
+                    <h3 class="text-xl font-bold text-navyPrimary">Terapis Terverifikasi</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Semua mitra terapis kami melewati proses skrining ketat, verifikasi administratif, sertifikasi keahlian, dan pelatihan standar bintang lima.
+                    </p>
+                </div>
+
+                <!-- Feature Card 3 -->
+                <div class="bg-slateLight p-8 rounded-2xl border border-slate-100 hover:shadow-xl transition duration-300 space-y-4">
+                    <div class="w-12 h-12 bg-mintGreen/10 rounded-xl flex items-center justify-center text-mintGreen text-2xl font-bold">
+                        ⚡
+                    </div>
+                    <h3 class="text-xl font-bold text-navyPrimary">Konfirmasi Real-Time</h3>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Pantau status pemesanan Anda secara instan dari proses pencarian terapis, perjalanan ke lokasi, hingga sesi pijat selesai.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Detail Section -->
+    <section id="layanan" class="py-20 bg-slateLight">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <span class="text-xs font-bold uppercase tracking-widest text-mintGreen">PILIHAN VAKSINASI & TERAPI SEHAT</span>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-navyPrimary leading-tight">
+                        Pilihan Terapi Spektrum Luas Spesifik Kebutuhan Anda
+                    </h2>
+                    <p class="text-slate-500 leading-relaxed">
+                        Kami mengerti bahwa setiap orang memiliki tingkat kelelahan dan kebutuhan penyembuhan yang berbeda. PijatKu menghadirkan ragam pilihan layanan dari pijat tradisional yang menenangkan hingga perawatan khusus ibu hamil dan anak-anak.
+                    </p>
+
+                    <div class="space-y-4 pt-4">
+                        <div class="flex items-start space-x-3">
+                            <span class="text-mintGreen text-xl mt-0.5">✔</span>
+                            <div>
+                                <h4 class="font-bold text-navyPrimary">Pijat Tradisional Tradisi Luhur</h4>
+                                <p class="text-xs text-slate-400">Efektif meredakan pegal-pegal akut, masuk angin, dan melancarkan peredaran darah.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <span class="text-mintGreen text-xl mt-0.5">✔</span>
+                            <div>
+                                <h4 class="font-bold text-navyPrimary">Pijat Ibu & Anak Spesialis</h4>
+                                <p class="text-xs text-slate-400">Didesain dengan teknik super lembut khusus untuk meningkatkan imunitas si kecil.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <span class="text-mintGreen text-xl mt-0.5">✔</span>
+                            <div>
+                                <h4 class="font-bold text-navyPrimary">Terapi Refleksi Saraf Kaki</h4>
+                                <p class="text-xs text-slate-400">Menyasar titik-titik akupresur utama kaki untuk menstimulasi fungsi organ tubuh internal.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Styled Graphic Element -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 relative">
+                    <div class="absolute -top-6 -right-6 w-16 h-16 bg-mintGreen/15 rounded-full blur-xl"></div>
+                    <h3 class="text-2xl font-bold text-navyPrimary mb-6">Paket Layanan Favorit</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-slateLight rounded-xl border border-slate-100">
+                            <div>
+                                <h5 class="font-bold text-sm text-navyPrimary">Pijat Tradisional Jawa</h5>
+                                <p class="text-xs text-slate-400">Durasi: 90 m • Best Seller ★</p>
+                            </div>
+                            <span class="font-bold text-navyPrimary text-sm">Rp 120.000</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-slateLight rounded-xl border border-slate-100">
+                            <div>
+                                <h5 class="font-bold text-sm text-navyPrimary">Totok & Aura Wajah</h5>
+                                <p class="text-xs text-slate-400">Durasi: 60 m • Relaksasi Premium</p>
+                            </div>
+                            <span class="font-bold text-navyPrimary text-sm">Rp 100.000</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-slateLight rounded-xl border border-slate-100">
+                            <div>
+                                <h5 class="font-bold text-sm text-navyPrimary">Refleksi Kaki Sehat</h5>
+                                <p class="text-xs text-slate-400">Durasi: 60 m • Akupresur Kaki</p>
+                            </div>
+                            <span class="font-bold text-navyPrimary text-sm">Rp 80.000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action / Download Section -->
+    <section id="unduh" class="py-20 gradient-bg text-white relative">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.1),transparent_50%)]"></div>
+        <div class="max-w-4xl mx-auto text-center px-6 space-y-8 relative z-10">
+            <h2 class="text-3xl md:text-5xl font-extrabold pb-2">
+                Siap Merasakan Kesehatan Maksimal Hari Ini?
+            </h2>
+            <p class="text-slate-300 text-lg max-w-xl mx-auto leading-relaxed">
+                Unduh aplikasi PijatKu gratis sekarang juga di smartphone Android Anda dan nikmati promo potongan spesial pengguna pertama.
+            </p>
+            
+            <div class="pt-4 flex flex-col sm:flex-row justify-center items-center gap-4">
+                <div class="bg-white/10 backdrop-blur border border-white/10 px-8 py-4 rounded-2xl flex items-center space-x-4 max-w-sm">
+                    <div class="h-10 w-10 bg-mintGreen rounded-full flex items-center justify-center text-xl font-bold">📲</div>
+                    <div class="text-left">
+                        <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Tersedia untuk</span>
+                        <span class="text-sm font-bold text-slate-100">Android OS 8.0 ke atas</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-navyPrimary text-slate-400 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-mintGreen/10 flex items-center justify-center text-mintGreen font-extrabold text-sm border border-mintGreen/20">
+                    P
+                </div>
+                <span class="font-extrabold text-lg tracking-tight text-white">Pijat<span class="text-mintGreen">Ku</span></span>
+            </div>
+            <p class="text-xs text-slate-500 font-medium">
+                &copy; 2026 PijatKu Indonesia. All rights reserved. • Dibuat dengan cinta untuk kesehatan Anda.
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>
