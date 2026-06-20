@@ -1761,47 +1761,204 @@ fun CustomerScreen(
                 Text(
                     text = "Konfirmasi Pemesanan 💆‍♂️",
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
+                    fontSize = 18.sp,
                     color = NavyPrimary
                 )
             },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        text = "Sesuaikan spesifikasi pesanan Anda sebelum memanggil terapis.",
+                        text = "Periksa detail layanan dan terapis Anda di bawah ini sebelum mengonfirmasi pesanan.",
                         fontSize = 11.sp,
                         color = Color.Gray
                     )
 
-                    // Selected layout details
+                    // Selected service card details
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF1F5F9)),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC)),
+                        border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Column(modifier = Modifier.padding(10.dp)) {
-                            Text(
-                                text = "Layanan: ${serv.name}",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 12.sp,
-                                color = NavyPrimary
-                            )
-                            Text(
-                                text = "Durasi: ${serv.durationMin} Menit",
-                                fontSize = 11.sp,
-                                color = Color.DarkGray
-                            )
-                            Text(
-                                text = "Terapis: ${ther?.name ?: "Terapis Pilihan Terdekat"}",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 12.sp,
-                                color = NavySecondary
-                            )
-                            Text(
-                                text = "Lokasi Penjemputan GPS Terdeteksi",
-                                fontSize = 10.sp,
-                                color = MintGreen,
-                                fontWeight = FontWeight.Bold
-                            )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text(
+                                    text = serv.name,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = NavyPrimary
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Durasi: ${serv.durationMin} Menit • GPS Terdeteksi",
+                                    fontSize = 11.sp,
+                                    color = Color.Gray
+                                )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .background(MintGreen.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = "Aktif",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MintGreen
+                                )
+                            }
+                        }
+                    }
+
+                    // Selected Therapist Details Card
+                    Text(
+                        text = "Detail Terapis:",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp,
+                        color = NavySecondary,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(1.dp, RoundedCornerShape(12.dp)),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        border = BorderStroke(1.dp, Color(0xFFF1F5F9)),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp)
+                        ) {
+                            if (ther != null) {
+                                val specialty = when {
+                                    ther.name.contains("Budi", ignoreCase = true) -> "Pijat Tradisional Jawa, Urut Capek, Refleksi Saraf Kaki"
+                                    ther.name.contains("Ani", ignoreCase = true) -> "Pijat Ibu & Anak, Totok Aura Wajah, Pijat Relaksasi Swedia"
+                                    ther.name.contains("Joko", ignoreCase = true) -> "Pijat Aromaterapi Kesehatan, Bekam Kering, Deep Tissue Therapy"
+                                    else -> "Terapi Kebal Pegal, Pijat Kebugaran, Kop Masuk Angin"
+                                }
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // Avatar
+                                    Box(modifier = Modifier.size(44.dp)) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(
+                                                    brush = Brush.linearGradient(
+                                                        colors = listOf(NavyPrimary.copy(alpha = 0.1f), MintGreen.copy(alpha = 0.15f))
+                                                    ),
+                                                    shape = CircleShape
+                                                ),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = ther.name.take(1),
+                                                fontWeight = FontWeight.ExtraBold,
+                                                fontSize = 16.sp,
+                                                color = NavyPrimary
+                                            )
+                                        }
+                                        
+                                        // Status Dot
+                                        Box(
+                                            modifier = Modifier
+                                                .size(10.dp)
+                                                .background(if (ther.isOnline) MintGreen else Color.Gray, CircleShape)
+                                                .border(1.5.dp, Color.White, CircleShape)
+                                                .align(Alignment.BottomEnd)
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.width(12.dp))
+
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            Text(
+                                                text = ther.name,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 13.sp,
+                                                color = NavyPrimary
+                                            )
+                                            Box(
+                                                modifier = Modifier
+                                                    .background(MintGreen.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                                                    .padding(horizontal = 4.dp, vertical = 1.dp)
+                                            ) {
+                                                Text(
+                                                    text = "Pro",
+                                                    fontSize = 8.sp,
+                                                    fontWeight = FontWeight.ExtraBold,
+                                                    color = NavyPrimary
+                                                )
+                                            }
+                                        }
+
+                                        Spacer(modifier = Modifier.height(2.dp))
+
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Star,
+                                                contentDescription = "Rating",
+                                                tint = AccentGold,
+                                                modifier = Modifier.size(12.dp)
+                                            )
+                                            Text(
+                                                text = "%.1f".format(ther.rating).replace(",", "."),
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.Black
+                                            )
+                                            Text(
+                                                text = "• ${ther.totalReviews} ulasan • ${ther.customerCount} order",
+                                                fontSize = 11.sp,
+                                                color = Color.Gray
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                Divider(color = Color(0xFFF1F5F9))
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Text(
+                                    text = "Bidang Spesialisasi: ",
+                                    fontSize = 10.sp,
+                                    color = Color.Gray,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = specialty,
+                                    fontSize = 11.sp,
+                                    color = NavySecondary,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.padding(top = 1.dp)
+                                )
+                            } else {
+                                Text(
+                                    text = "Mencari Terapis Terbaik Untuk Anda...",
+                                    fontSize = 12.sp,
+                                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
                         }
                     }
 
