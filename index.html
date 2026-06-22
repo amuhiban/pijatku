@@ -54,7 +54,7 @@
 <body class="text-slate-800 antialiased overflow-x-hidden">
 
     <!-- Header / Navigation -->
-    <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm transition-all duration-300">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-navyPrimary/20">
@@ -62,20 +62,75 @@
                 </div>
                 <span class="font-extrabold text-2xl tracking-tight text-navyPrimary">Pijat<span class="text-mintGreen">Ku</span></span>
             </div>
-            <nav class="hidden md:flex items-center space-x-8 font-semibold text-sm text-navySecondary">
-                <a href="#fitur" class="hover:text-mintGreen transition">Fitur Unggulan</a>
-                <a href="#layanan" class="hover:text-mintGreen transition">Layanan & Terapis</a>
+            
+            <!-- Desktop Nav Menu -->
+            <nav class="hidden xl:flex items-center space-x-6 font-bold text-xs lg:text-sm text-navySecondary">
+                <a href="#fitur" class="hover:text-mintGreen transition">Fitur</a>
+                <a href="#peta-interaktif" class="hover:text-mintGreen transition">Atur Lokasi</a>
+                <a href="#layanan" class="hover:text-mintGreen transition">Mitra Terapis</a>
+                <a href="#kalkulator-tarif" class="hover:text-mintGreen transition">Kalkulator Tarif</a>
+                <a href="#tentang-kami" class="hover:text-mintGreen transition">Tentang Kami</a>
                 <a href="#testimoni" class="hover:text-mintGreen transition">Testimoni</a>
                 <a href="#faq" class="hover:text-mintGreen transition">FAQ</a>
-                <a href="#unduh" class="hover:text-mintGreen transition">Unduh Aplikasi</a>
+                <a href="#hubungi-kami" class="hover:text-mintGreen transition">Hubungi</a>
             </nav>
-            <div>
-                <a href="#unduh" class="bg-navyPrimary hover:bg-opacity-90 text-white font-semibold text-sm px-6 py-3 rounded-full transition shadow-md shadow-navyPrimary/10">
+
+            <div class="flex items-center space-x-3">
+                <a href="#unduh" class="hidden sm:inline-flex bg-navyPrimary hover:bg-opacity-90 text-white font-bold text-xs px-5 py-3 rounded-full transition shadow-md shadow-navyPrimary/10">
                     Unduh Sekarang
                 </a>
+                
+                <!-- Mobile Hamburger Button -->
+                <button id="mobile-menu-toggle" type="button" class="xl:hidden w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 text-navyPrimary font-extrabold flex items-center justify-center transition border border-slate-200/50 active:scale-95 focus:outline-none">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
+                    </svg>
+                </button>
             </div>
         </div>
     </header>
+
+    <!-- Mobile Navigation Drawer Overlay -->
+    <div id="mobile-nav-drawer" class="fixed inset-0 z-50 bg-navyPrimary/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
+        <div class="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl flex flex-col justify-between transform translate-x-full transition-transform duration-300">
+            <div>
+                <!-- Drawer Header -->
+                <div class="flex items-center justify-between pb-6 border-b border-slate-100">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white font-extrabold text-sm">
+                            P
+                        </div>
+                        <span class="font-extrabold text-lg text-navyPrimary">Pijat<span class="text-mintGreen">Ku</span> Drawer</span>
+                    </div>
+                    <button id="close-mobile-drawer" class="w-8 h-8 rounded-full bg-slate-50 hover:bg-slate-100 text-slate-500 transition flex items-center justify-center focus:outline-none border border-slate-100">
+                        <svg class="w-4 h-4 stroke-current" fill="none" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Drawer Links -->
+                <nav class="flex flex-col gap-4 mt-8 font-bold text-sm text-navyPrimary">
+                    <a href="#fitur" class="hover:text-mintGreen py-2 border-b border-slate-50 flex items-center gap-2">✨ <span>Fitur Unggulan</span></a>
+                    <a href="#peta-interaktif" class="hover:text-mintGreen py-2 border-b border-slate-50 flex items-center gap-2">📍 <span>Atur Lokasi GPS</span></a>
+                    <a href="#layanan" class="hover:text-mintGreen py-2 border-b border-slate-50 flex items-center gap-2">💆‍♂️ <span>Mitra Terapis</span></a>
+                    <a href="#kalkulator-tarif" class="hover:text-mintGreen py-2 border-b border-slate-50 flex items-center gap-2">🧮 <span>Kalkulator Tarif</span></a>
+                    <a href="#tentang-kami" class="hover:text-mintGreen py-2 border-b border-slate-50 flex items-center gap-2">🏢 <span>Tentang Kami</span></a>
+                    <a href="#testimoni" class="hover:text-mintGreen py-2 border-b border-slate-50 flex items-center gap-2">⭐ <span>Testimoni Pengguna</span></a>
+                    <a href="#faq" class="hover:text-mintGreen py-2 border-b border-slate-50 flex items-center gap-2">❓ <span>Tanya Jawab (FAQ)</span></a>
+                    <a href="#hubungi-kami" class="hover:text-mintGreen py-2 border-b border-slate-50 flex items-center gap-2">✉️ <span>Hubungi Kami</span></a>
+                </nav>
+            </div>
+
+            <!-- Drawer Footer Button -->
+            <div class="pt-6 border-t border-slate-100">
+                <a href="#unduh" class="w-full bg-mintGreen hover:bg-emerald-600 text-white font-extrabold py-3.5 px-4 rounded-xl text-center text-xs tracking-wide block transition shadow-lg shadow-mintGreen/10">
+                    Unduh Aplikasi Android
+                </a>
+                <span class="text-[10px] text-slate-400 text-center block mt-3 font-semibold">Tersedia Gratis di Google Play</span>
+            </div>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section class="pt-32 pb-20 gradient-bg text-white relative overflow-hidden">
@@ -737,6 +792,307 @@
         </div>
     </section>
 
+    <!-- CALCULATOR TARIF LAYANAN SECTION -->
+    <section id="kalkulator-tarif" class="py-20 bg-white border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+                <span class="text-xs font-black uppercase tracking-widest text-mintGreen bg-mintGreen/10 px-3 py-1 rounded-full">Alat Estimasi Cerdas</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-navyPrimary tracking-tight">Kalkulator Tarif Transparan</h2>
+                <p class="text-slate-500 text-sm md:text-base leading-relaxed">
+                    Kami menjamin transparansi harga tanpa biaya tambahan tersembunyi. Silakan hitung estimasi total tarif pijat sesuai kebutuhan paket Anda di bawah ini secara instan.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-12 gap-10 items-start">
+                <!-- Left Column Input Selector Card -->
+                <div class="lg:col-span-7 bg-slateLight p-6 md:p-8 rounded-3xl border border-slate-200/60 shadow-lg space-y-6">
+                    <h3 class="text-lg font-extrabold text-navyPrimary flex items-center gap-2">
+                        <span>🔧</span> Atur Paket Relaksasi Anda
+                    </h3>
+                    
+                    <!-- 1. Select Base Service -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-extrabold text-navySecondary uppercase tracking-wider">Pilih Layanan Utama:</label>
+                        <select id="calc-base-service" class="w-full bg-white border border-slate-200/80 rounded-xl px-4 py-3 text-xs md:text-sm text-navyPrimary font-semibold focus:outline-none focus:ring-2 focus:ring-mintGreen focus:border-transparent transition shadow-sm">
+                            <option value="90000" data-name="Pijat Tradisional Jawa" selected>Pijat Tradisional Jawa (Rp 90.000 / 60 Menit)</option>
+                            <option value="120000" data-name="Pijat Kebugaran Deep Tissue">Pijat Kebugaran Deep Tissue (Rp 120.000 / 60 Menit)</option>
+                            <option value="110000" data-name="Pijat Ibu & Anak">Pijat Relaksasi Ibu & Anak (Rp 110.000 / 60 Menit)</option>
+                            <option value="80000" data-name="Refleksi Saraf Kaki">Refleksi Saraf Kaki & Akupresur (Rp 80.000 / 60 Menit)</option>
+                            <option value="130000" data-name="Pijat Lulur Kebugaran Bali">Pijat Lulur Kebugaran Bali (Rp 130.000 / 60 Menit)</option>
+                            <option value="75000" data-name="Totok Aura Wajah">Totok Aura Wajah Cantik (Rp 75.000 / 45 Menit)</option>
+                        </select>
+                    </div>
+
+                    <!-- 2. Select Duration Option -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-extrabold text-navySecondary uppercase tracking-wider">Durasi Tambahan:</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <label class="relative flex items-center justify-center p-3 border-2 border-mintGreen bg-mintGreen/5 rounded-xl cursor-pointer text-center select-none transition group" id="calc-dur-0">
+                                <input type="radio" name="calc-duration" value="0" class="sr-only" checked>
+                                <span class="text-xs font-extrabold text-navyPrimary group-hover:text-mintGreen transition">Normal (60m)</span>
+                            </label>
+                            <label class="relative flex items-center justify-center p-3 border-2 border-slate-150 bg-white rounded-xl cursor-pointer text-center select-none transition group" id="calc-dur-30">
+                                <input type="radio" name="calc-duration" value="45000" class="sr-only">
+                                <span class="text-xs font-bold text-slate-500 group-hover:text-navyPrimary transition">+30 Menit (+Rp45k)</span>
+                            </label>
+                            <label class="relative flex items-center justify-center p-3 border-2 border-slate-150 bg-white rounded-xl cursor-pointer text-center select-none transition group" id="calc-dur-60">
+                                <input type="radio" name="calc-duration" value="80000" class="sr-only">
+                                <span class="text-xs font-bold text-slate-500 group-hover:text-navyPrimary transition">+60 Menit (+Rp80k)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 3. Add-on Options -->
+                    <div class="space-y-2.5">
+                        <label class="block text-xs font-extrabold text-navySecondary uppercase tracking-wider">Layanan Terapi Tambahan (Add-ons):</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center gap-3 p-3 bg-white border border-slate-150 rounded-xl cursor-pointer hover:border-mintGreen/40 hover:bg-emerald-50/10 transition select-none">
+                                <input type="checkbox" name="calc-addon" value="25000" data-name="Kerokan Merah Angin" class="rounded text-mintGreen focus:ring-mintGreen w-4 h-4">
+                                <div class="text-left">
+                                    <span class="block text-xs font-bold text-navyPrimary">Kerokan Tradisional</span>
+                                    <span class="text-[9px] text-slate-400 font-bold">+ Rp 25.000</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 bg-white border border-slate-150 rounded-xl cursor-pointer hover:border-mintGreen/40 hover:bg-emerald-50/10 transition select-none">
+                                <input type="checkbox" name="calc-addon" value="30000" data-name="Bekam Kering Sehat" class="rounded text-mintGreen focus:ring-mintGreen w-4 h-4">
+                                <div class="text-left">
+                                    <span class="block text-xs font-bold text-navyPrimary">Bekam Kering (Kop)</span>
+                                    <span class="text-[9px] text-slate-400 font-bold">+ Rp 30.000</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 bg-white border border-slate-150 rounded-xl cursor-pointer hover:border-mintGreen/40 hover:bg-emerald-50/10 transition select-none">
+                                <input type="checkbox" name="calc-addon" value="20000" data-name="Minyak Aromaterapi" class="rounded text-mintGreen focus:ring-mintGreen w-4 h-4">
+                                <div class="text-left">
+                                    <span class="block text-xs font-bold text-navyPrimary">Minyak Aromaterapi</span>
+                                    <span class="text-[9px] text-slate-400 font-bold">+ Rp 20.000</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 p-3 bg-white border border-slate-150 rounded-xl cursor-pointer hover:border-mintGreen/40 hover:bg-emerald-50/10 transition select-none">
+                                <input type="checkbox" name="calc-addon" value="35000" data-name="Lulur Scrub Alami" class="rounded text-mintGreen focus:ring-mintGreen w-4 h-4">
+                                <div class="text-left">
+                                    <span class="block text-xs font-bold text-navyPrimary">Lulur Kebugaran</span>
+                                    <span class="text-[9px] text-slate-400 font-bold">+ Rp 35.000</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 4. Transport fee setup -->
+                    <div class="pt-2">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-extrabold text-navySecondary uppercase tracking-wider">Jarak Lokasi Penjemputan:</label>
+                            <!-- Promo label -->
+                            <span class="text-[10px] font-black uppercase text-mintGreen bg-mintGreen/10 px-2.5 py-0.5 rounded-full animate-bounce">GRATIS TRANSPORT</span>
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 mt-2">
+                            <label id="calc-dist-1" class="relative flex flex-col items-center p-2.5 border-2 border-mintGreen bg-mintGreen/5 rounded-xl cursor-pointer text-center select-none transition">
+                                <input type="radio" name="calc-distance" value="0" class="sr-only" checked>
+                                <span class="text-[11px] font-extrabold text-navyPrimary">Dekat (0-2 km)</span>
+                                <span class="text-[8px] text-slate-400 font-bold line-through">Rp 5.000</span>
+                            </label>
+                            <label id="calc-dist-2" class="relative flex flex-col items-center p-2.5 border-2 border-slate-150 bg-white rounded-xl cursor-pointer text-center select-none transition">
+                                <input type="radio" name="calc-distance" value="0" class="sr-only">
+                                <span class="text-[11px] font-bold text-slate-500">Medium (2-5 km)</span>
+                                <span class="text-[8px] text-slate-400 font-bold line-through">Rp 12.000</span>
+                            </label>
+                            <label id="calc-dist-3" class="relative flex flex-col items-center p-2.5 border-2 border-slate-150 bg-white rounded-xl cursor-pointer text-center select-none transition">
+                                <input type="radio" name="calc-distance" value="0" class="sr-only">
+                                <span class="text-[11px] font-bold text-slate-500">Jauh (5-10 km)</span>
+                                <span class="text-[8px] text-slate-400 font-bold line-through">Rp 20.000</span>
+                            </label>
+                            <label id="calc-dist-4" class="relative flex flex-col items-center p-2.5 border-2 border-slate-150 bg-white rounded-xl cursor-pointer text-center select-none transition">
+                                <input type="radio" name="calc-distance" value="0" class="sr-only">
+                                <span class="text-[11px] font-bold text-slate-500">Super (10+ km)</span>
+                                <span class="text-[8px] text-slate-400 font-bold line-through">Rp 30.000</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 5. Coupon code field -->
+                    <div class="space-y-2">
+                        <label class="block text-xs font-extrabold text-navySecondary uppercase tracking-wider">Masukkan Kode Kupon Promo:</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="calc-coupon-input" placeholder="Contoh: PIJATHALAL, SEHATBARU..." class="bg-white border border-slate-200/80 rounded-xl px-4 py-2 text-xs text-navyPrimary font-semibold focus:outline-none focus:ring-2 focus:ring-mintGreen flex-1 shadow-sm uppercase">
+                            <button type="button" id="calc-coupon-btn" class="bg-navyPrimary hover:bg-navySecondary text-white text-xs font-extrabold px-4 py-2 rounded-xl transition shadow-md active:scale-95 focus:outline-none">Terapkan</button>
+                        </div>
+                        <p id="calc-coupon-msg" class="text-[10px] font-bold hidden"></p>
+                    </div>
+                </div>
+
+                <!-- Right Column Interactive Rincian Biaya Receipt Card -->
+                <div class="lg:col-span-5 bg-navyPrimary rounded-3xl text-white p-6 md:p-8 shadow-2xl space-y-6 relative overflow-hidden flex flex-col justify-between self-stretch">
+                    <!-- Aesthetics design gradient inside card -->
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.12),transparent_50%)]"></div>
+                    
+                    <div class="relative z-10 space-y-6">
+                        <div class="border-b border-white/10 pb-4 flex items-center justify-between">
+                            <div>
+                                <h4 class="text-base font-extrabold text-white">Rincian Paket Estimasi</h4>
+                                <p class="text-[10px] text-slate-400">PijatKu Official Receipt Voucher</p>
+                            </div>
+                            <span class="text-xl">🧾</span>
+                        </div>
+
+                        <!-- Itemized list container -->
+                        <div class="space-y-3.5 text-xs">
+                            <!-- Base Service Row -->
+                            <div class="flex justify-between">
+                                <span class="text-slate-300" id="calc-receipt-service-name">Pijat Tradisional Jawa</span>
+                                <span class="font-bold font-mono" id="calc-receipt-service-price">Rp 90.000</span>
+                            </div>
+                            <!-- Duration Extension Row -->
+                            <div class="flex justify-between hidden" id="calc-receipt-dur-row">
+                                <span class="text-slate-300" id="calc-receipt-dur-name">Durasi Ekstra +30m</span>
+                                <span class="font-bold font-mono" id="calc-receipt-dur-price">Rp 45.000</span>
+                            </div>
+                            <!-- Addon Enhancers Row -->
+                            <div class="hidden flex-col gap-2 border-t border-white/5 pt-3" id="calc-receipt-addons-row">
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-green-400">Tambahan Terapi:</span>
+                                <div id="calc-receipt-addons-list" class="space-y-1 text-[11px] text-slate-300">
+                                    <!-- Dynamic list inserts here -->
+                                </div>
+                            </div>
+                            <!-- Transport Row -->
+                            <div class="flex justify-between border-t border-white/5 pt-3">
+                                <span class="text-slate-300">Biaya Transportasi Kunjungan</span>
+                                <span class="text-slate-400 line-through font-bold font-mono">Rp 12.000</span>
+                            </div>
+                            <div class="flex justify-between text-green-400 font-semibold text-[11px] -mt-2.5">
+                                <span>Promo BEBAS Transport</span>
+                                <span class="font-bold">Gratis Ongkir</span>
+                            </div>
+
+                            <!-- Discount Coupon Row -->
+                            <div class="flex justify-between text-yellow-400 font-bold border-t border-white/5 pt-3 hidden" id="calc-receipt-discount-row">
+                                <span id="calc-receipt-coupon-label">Kupon SEHATBARU</span>
+                                <span class="font-mono" id="calc-receipt-discount-val">- Rp 20.000</span>
+                            </div>
+                        </div>
+
+                        <!-- Live Total Box -->
+                        <div class="bg-white/5 border border-white/10 p-5 rounded-2xl flex items-center justify-between mt-6">
+                            <div>
+                                <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Total Estimasi Tarif</span>
+                                <span class="text-[11px] text-semibold text-mintGreen">Sudah Termasuk Pajak & Net</span>
+                            </div>
+                            <p class="text-2xl md:text-3xl font-black font-mono text-mintGreen" id="calc-grand-total">Rp 90.000</p>
+                        </div>
+                    </div>
+
+                    <!-- CTA Actions -->
+                    <div class="relative z-10 pt-4 border-t border-white/10 space-y-3">
+                        <button type="button" id="calc-order-submit-btn" class="w-full bg-mintGreen hover:bg-emerald-600 text-white font-extrabold py-4 px-6 rounded-2xl text-xs tracking-wider transition duration-200 shadow-lg shadow-mintGreen/20 active:scale-95 focus:outline-none flex items-center justify-center gap-2">
+                            <span>Sewa Terapis Sesuai Rincian Ini</span>
+                            <svg class="w-4.5 h-4.5 stroke-current" fill="none" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </button>
+                        <p class="text-[10px] text-slate-400 text-center font-medium leading-normal">
+                            *Alat estimasi kalkulator di atas diselaraskan secara akurat dengan sistem reservasi utama PijatKu.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TENTANG KAMI & BRAND IDENTITY SECTION -->
+    <section id="tentang-kami" class="py-20 bg-slateLight scroll-mt-20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                
+                <!-- Left Column Narrative and Core Values -->
+                <div class="space-y-6 text-left">
+                    <span class="text-xs font-black uppercase text-mintGreen bg-mintGreen/10 px-3.5 py-1.5 rounded-full inline-block">Sertifikasi & Kredibilitas</span>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-navyPrimary tracking-tight">Menghubungkan Anda dengan Terapis Profesional</h2>
+                    
+                    <p class="text-slate-600 text-sm md:text-base leading-relaxed">
+                        PijatKu lahir dari dedikasi untuk menyajikan solusi kesehatan praktis, aman, dan berkualitas tinggi langsung ke tempat tinggal masyarakat Indonesia. Kami tidak hanya berkonsentrasi pada relaksasi fisik, tetapi juga berkomitmen membangun ekosistem yang sehat dan aman bagi seluruh mitra kami.
+                    </p>
+                    
+                    <p class="text-slate-600 text-sm md:text-base leading-relaxed">
+                        Setiap mitra terapis PijatKu telah melewati **skrining latar belakang ketat**, pemeriksaan kesehatan berkala, dan verifikasi sertifikat keahlian profesional resmi. Hal ini dilakukan demi menjamin privasi, rasa aman, dan standar kebersihan paripurna bagi para pelanggan setia kami.
+                    </p>
+
+                    <!-- Trust checklist cards -->
+                    <div class="grid sm:grid-cols-2 gap-4 pt-4">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200/50 shadow-sm flex items-start gap-3">
+                            <span class="text-lg">🛡️</span>
+                            <div>
+                                <h4 class="text-xs font-extrabold text-navyPrimary">Jaminan Keamanan</h4>
+                                <p class="text-[11px] text-slate-400 leading-normal mt-0.5">Sistem pelacakan GPS aktif & tombol bantuan darurat 24 jam.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200/50 shadow-sm flex items-start gap-3">
+                            <span class="text-lg">🌿</span>
+                            <div>
+                                <h4 class="text-xs font-extrabold text-navyPrimary">Bahan Alami & Bersih</h4>
+                                <p class="text-[11px] text-slate-400 leading-normal mt-0.5">Minyak esensial premium non-alergi dan kain alas steril sekali pakai.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column Graphics Stats and Official Badges -->
+                <div class="relative bg-white border border-slate-200 p-8 rounded-3xl shadow-xl flex flex-col justify-between space-y-8">
+                    <div class="absolute top-4 right-4 text-slate-200 text-7xl font-mono select-none pointer-events-none font-bold">PIJATKU</div>
+                    
+                    <div>
+                        <h3 class="text-lg font-black text-navyPrimary">Dukungan Standardisasi & Kualitas</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed mt-1">Kami berkolaborasi erat dengan dinas kesehatan dan asosiasi penata pijat tradisional terlisensi untuk pembinaan berkesinambungan.</p>
+                    </div>
+
+                    <!-- Progress scores -->
+                    <div class="space-y-4">
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-xs font-bold text-navyPrimary">
+                                <span>Tingkat Kepuasan Pelanggan (CSAT)</span>
+                                <span class="text-mintGreen">98.4%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                <div class="bg-mintGreen h-full rounded-full" style="width: 98%;"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-xs font-bold text-navyPrimary">
+                                <span>Skor Kelolosan Uji Kompetensi Terapis</span>
+                                <span class="text-mintGreen">100% (Verifikasi Dokumen)</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                <div class="bg-mintGreen h-full rounded-full" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-xs font-bold text-navyPrimary">
+                                <span>Tingkat Pengulangan Pesanan (Retention Rate)</span>
+                                <span class="text-mintGreen">82.1%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                <div class="bg-mintGreen h-full rounded-full" style="width: 82%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Partnership icons and support -->
+                    <div class="pt-6 border-t border-slate-100 flex items-center justify-between gap-4">
+                        <div class="text-left">
+                            <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kolaborasi Mitra:</span>
+                            <div class="flex items-center gap-3 mt-1.5">
+                                <span class="text-xs font-bold bg-slate-50 text-slate-500 px-2 py-1 rounded">BPJS Ketenagakerjaan</span>
+                                <span class="text-xs font-bold bg-slate-50 text-slate-500 px-2 py-1 rounded">Asosiasi Terapi Herbal</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">PijatKu Kualitas</span>
+                            <span class="font-extrabold text-[#EAB308] text-sm">★★★★★</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
     <!-- Customer Testimonials Section -->
     <section id="testimoni" class="py-20 bg-white relative overflow-hidden">
         <div class="absolute -top-12 -left-12 w-32 h-32 bg-mintGreen/5 rounded-full blur-2xl"></div>
@@ -823,6 +1179,56 @@
                         <div>
                             <h4 class="font-bold text-navyPrimary text-sm">David Lim</h4>
                             <p class="text-xs text-slate-400">Langganan Tetap • Surabaya</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Add Review Form Card -->
+            <div class="mt-16 bg-slateLight rounded-3xl p-6 md:p-10 border border-slate-200/80 shadow-md">
+                <div class="grid lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-5 text-left space-y-4">
+                        <span class="text-xs font-black uppercase text-mintGreen bg-mintGreen/10 px-3 py-1 rounded-full">Forum Publik</span>
+                        <h3 class="text-2xl font-extrabold text-navyPrimary tracking-tight">Bagikan Pengalaman Relaksasi Anda</h3>
+                        <p class="text-slate-500 text-xs md:text-sm leading-relaxed">
+                            Bagaimana rasanya dipijat langsung oleh mitra profesional kami di rumah? Tulis ulasan tulus Anda di bawah untuk membantu meningkatkan layanan kebugaran PijatKu!
+                        </p>
+                        
+                        <div class="pt-2">
+                            <span class="block text-xs font-extrabold text-navySecondary uppercase tracking-wider mb-2">Pilih Rating Bintang:</span>
+                            <!-- Dynamic Star Selector -->
+                            <div class="flex items-center gap-2" id="review-stars-container">
+                                <button type="button" class="form-star-btn text-2xl text-amber-400 focus:outline-none transition-transform hover:scale-110" data-val="1">★</button>
+                                <button type="button" class="form-star-btn text-2xl text-amber-400 focus:outline-none transition-transform hover:scale-110" data-val="2">★</button>
+                                <button type="button" class="form-star-btn text-2xl text-amber-400 focus:outline-none transition-transform hover:scale-110" data-val="3">★</button>
+                                <button type="button" class="form-star-btn text-2xl text-amber-400 focus:outline-none transition-transform hover:scale-110" data-val="4">★</button>
+                                <button type="button" class="form-star-btn text-2xl text-amber-400 focus:outline-none transition-transform hover:scale-110" data-val="5">★</button>
+                                <span class="text-xs font-extrabold text-slate-500 font-mono ml-1" id="review-star-label">5.0 (Sempurna)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-150 shadow-inner grid sm:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-extrabold text-navySecondary uppercase tracking-wider">Nama Lengkap:</label>
+                            <input type="text" id="review-name-input" placeholder="Masukkan nama Anda..." class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-navyPrimary font-semibold focus:outline-none focus:ring-2 focus:ring-mintGreen focus:bg-white transition" required>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-extrabold text-navySecondary uppercase tracking-wider">Profesi / Kota Asal:</label>
+                            <input type="text" id="review-job-input" placeholder="Contoh: Wiraswasta • Yogyakarta..." class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-navyPrimary font-semibold focus:outline-none focus:ring-2 focus:ring-mintGreen focus:bg-white transition" required>
+                        </div>
+                        <div class="sm:col-span-2 space-y-1">
+                            <label class="block text-[10px] font-extrabold text-navySecondary uppercase tracking-wider">Isi Testimoni Pengalaman Anda:</label>
+                            <textarea id="review-text-input" rows="3" placeholder="Deskripsikan kesegaran bugar, kesopanan terapis, atau ketepatan waktu penjemputan..." class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-navyPrimary font-medium focus:outline-none focus:ring-2 focus:ring-mintGreen focus:bg-white transition" required></textarea>
+                        </div>
+                        
+                        <div class="sm:col-span-2 pt-2">
+                            <button type="button" id="review-submit-btn" class="w-full bg-mintGreen hover:bg-emerald-600 text-white font-extrabold py-3 px-6 rounded-xl text-xs tracking-wider transition shadow-md shadow-mintGreen/10 active:scale-95 focus:outline-none flex items-center justify-center gap-2">
+                                <span>Kirim & Terbangkan Ulasan Saya</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -924,6 +1330,117 @@
                         Ya, tentu saja! Selain pemesanan langsung dikoordinasikan secara instan (on-demand), Anda juga dapat menggunakan antarmuka aplikasi bersahabat kami untuk menjadwalkan sesi terapi pijat hingga h-7 sebelumnya sesuai dengan waktu santai terbaik Anda.
                     </div>
                 </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- HUBUNGI KAMI (CONTACT US) SECTION -->
+    <section id="hubungi-kami" class="py-20 bg-slateLight scroll-mt-20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-12 gap-12 items-stretch">
+                
+                <!-- Left Column Address & Brand Details -->
+                <div class="lg:col-span-5 flex flex-col justify-between space-y-8">
+                    <div class="space-y-4 text-left">
+                        <span class="text-xs font-black uppercase text-mintGreen bg-mintGreen/10 px-3 py-1 rounded-full">Hubungi Kami</span>
+                        <h2 class="text-3xl md:text-4xl font-extrabold text-navyPrimary tracking-tight">Butuh Bantuan Lebih Lanjut?</h2>
+                        <p class="text-slate-500 text-xs md:text-sm leading-relaxed">
+                            Punya kritik, saran, kendala teknis pemesanan, atau tertarik mendaftar sebagai mitra terapis profesional kami? Silakan hubungi tim kami yang siap melayani 24 jam penuh!
+                        </p>
+                    </div>
+
+                    <!-- Direct contact badges -->
+                    <div class="space-y-4">
+                        <div class="p-4 bg-white border border-slate-150 rounded-2xl flex items-center gap-4 transition hover:shadow-md">
+                            <span class="text-2xl">📞</span>
+                            <div>
+                                <h4 class="text-xs font-extrabold text-navyPrimary uppercase tracking-wider">Hotline Bantuan Kilat</h4>
+                                <p class="text-xs font-sans font-bold text-mintGreen mt-0.5">+62 821-4433-2211 (WhatsApp)</p>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-white border border-slate-150 rounded-2xl flex items-center gap-4 transition hover:shadow-md">
+                            <span class="text-2xl">✉️</span>
+                            <div>
+                                <h4 class="text-xs font-extrabold text-navyPrimary uppercase tracking-wider">Layanan Email Resmi</h4>
+                                <p class="text-xs font-sans font-bold text-mintGreen mt-0.5">support@pijatku.com.id</p>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-white border border-slate-150 rounded-2xl flex items-center gap-4 transition hover:shadow-md">
+                            <span class="text-2xl">🏬</span>
+                            <div>
+                                <h4 class="text-xs font-extrabold text-navyPrimary uppercase tracking-wider">Kantor Pusat Operasional</h4>
+                                <p class="text-[11px] text-slate-500 leading-relaxed mt-0.5">Sudirman City Grand Tower Lt. 14, Kav. 21, Jakarta Pusat, DKI Jakarta</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trust footprint -->
+                    <p class="text-[11px] text-slate-400 leading-normal">
+                        *Layanan panggilan telepon darurat terintegrasi langsung dengan kepolisian terdekat dan dewan pimpinan nasional dinas sosial.
+                    </p>
+                </div>
+
+                <!-- Right Column Interactive Form & Result Display Panel -->
+                <div class="lg:col-span-7 bg-white border border-slate-200/80 p-6 md:p-8 rounded-3xl shadow-xl flex flex-col justify-between relative overflow-hidden self-stretch">
+                    <!-- Dynamic Feedback Message Box -->
+                    <div id="contact-success-panel" class="hidden absolute inset-0 bg-white z-20 p-8 flex flex-col items-center justify-center text-center space-y-6 transition-all duration-300">
+                        <span class="text-5xl animate-bounce">📨</span>
+                        <div class="space-y-2 max-w-sm">
+                            <h3 class="text-lg font-black text-navyPrimary">Pesan & Pengaduan Anda Terkirim!</h3>
+                            <p class="text-xs text-slate-500 leading-relaxed">
+                                Terima kasih <strong id="contact-success-user" class="text-navyPrimary font-bold">-</strong>, pengajuan dokumen kategori <strong id="contact-success-cat" class="text-mintGreen font-bold">-</strong> telah kami terima di basis data tiket dengan ID Referensi: <span id="contact-success-id" class="font-mono text-navyPrimary font-bold text-xs bg-slate-100 px-1.5 py-0.5 rounded">#PK-9821</span>.
+                            </p>
+                            <p class="text-[11px] text-slate-400">Tim spesialis dukungan PijatKu akan merespon tiket Anda paling lambat dalam 2-4 jam melalui WhatsApp/Email.</p>
+                        </div>
+                        
+                        <button type="button" id="contact-reset-btn" class="bg-navyPrimary hover:bg-slate-850 text-white font-extrabold py-2.5 px-6 rounded-xl text-xs transition active:scale-95">Tulis Pesan Baru</button>
+                    </div>
+
+                    <!-- Interactive Form elements -->
+                    <div class="space-y-5">
+                        <div class="border-b border-slate-100 pb-3">
+                            <h3 class="text-base font-extrabold text-navyPrimary">Kirim Surat Pengaduan/Kemitraan</h3>
+                            <p class="text-xs text-slate-400">Tanggapan instan ramah dari tim spesialis bantuan kami.</p>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-extrabold text-navySecondary uppercase tracking-wider">Nama Anda:</label>
+                                <input type="text" id="contact-name-input" placeholder="Masukkan nama..." class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-navyPrimary font-semibold focus:outline-none focus:ring-2 focus:ring-mintGreen focus:bg-white transition" required>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-extrabold text-navySecondary uppercase tracking-wider">Alamat Email:</label>
+                                <input type="email" id="contact-email-input" placeholder="Contoh: nama@domain.com..." class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-navyPrimary font-semibold focus:outline-none focus:ring-2 focus:ring-mintGreen focus:bg-white transition" required>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-extrabold text-navySecondary uppercase tracking-wider">Pilih Kategori Kepentingan:</label>
+                            <select id="contact-category-select" class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-navyPrimary font-semibold focus:outline-none focus:ring-2 focus:ring-mintGreen focus:bg-white transition">
+                                <option value="Bantuan / Komplain Layanan">⚙️ Bantuan & Komplain Sesi Pemesanan</option>
+                                <option value="Pengajuan Kemitraan Terapis">🛵 Pendaftaran Lowongan Mitra Terapis Baru</option>
+                                <option value="Kerjasama Bisnis (B2B)">🏢 Kemitraan Strategis Korporasi / Kantor</option>
+                                <option value="Saran & Kritik Masukan">🌟 Kritik, Saran & Fitur Rekomendasi</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-extrabold text-navySecondary uppercase tracking-wider">Isi Surat / Pesan:</label>
+                            <textarea id="contact-message-input" rows="4" placeholder="Detailkan kebutuhan Anda di sini secara lengkap agar tim kami dapat mengidentifikasi masalah lebih cepat..." class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-navyPrimary font-medium focus:outline-none focus:ring-2 focus:ring-mintGreen focus:bg-white transition" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
+                        <span class="text-[10px] text-slate-400 font-medium">Bebas Spam dan Dilindungi Enkripsi SSL.</span>
+                        <button type="button" id="contact-submit-btn" class="bg-mintGreen hover:bg-emerald-600 text-white font-extrabold py-3 px-6 rounded-xl text-xs tracking-wider transition shadow-md shadow-mintGreen/10 active:scale-95 focus:outline-none flex items-center justify-center gap-2">
+                            <span>Kirim Surat</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12.75 15l3-3m0 0l-3-3m3 3h-7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
@@ -1613,6 +2130,498 @@
 
                 updateTherapistUI(id, therapistStates[id]);
             }, 5000);
+
+            // 3.5 Mobile Menu Interaction Control
+            const mobileMenuToggle = document.getElementById("mobile-menu-toggle");
+            const mobileNavDrawer = document.getElementById("mobile-nav-drawer");
+            const closeMobileDrawer = document.getElementById("close-mobile-drawer");
+            const mobileDrawerLinks = mobileNavDrawer ? mobileNavDrawer.querySelectorAll("nav a") : [];
+
+            if (mobileMenuToggle && mobileNavDrawer) {
+                mobileMenuToggle.addEventListener("click", function() {
+                    mobileNavDrawer.classList.remove("pointer-events-none", "opacity-0");
+                    mobileNavDrawer.classList.add("opacity-100");
+                    const child = mobileNavDrawer.querySelector(".absolute");
+                    if (child) {
+                        child.classList.remove("translate-x-full");
+                        child.classList.add("translate-x-0");
+                    }
+                });
+
+                const closeMenu = function() {
+                    mobileNavDrawer.classList.add("pointer-events-none", "opacity-0");
+                    mobileNavDrawer.classList.remove("opacity-100");
+                    const child = mobileNavDrawer.querySelector(".absolute");
+                    if (child) {
+                        child.classList.add("translate-x-full");
+                        child.classList.remove("translate-x-0");
+                    }
+                };
+
+                if (closeMobileDrawer) closeMobileDrawer.addEventListener("click", closeMenu);
+                mobileNavDrawer.addEventListener("click", function(e) {
+                    if (e.target === mobileNavDrawer) closeMenu();
+                });
+
+                mobileDrawerLinks.forEach(link => {
+                    link.addEventListener("click", closeMenu);
+                });
+            }
+
+            // 3.7 Interactive Pricing Calculator Interactivity
+            const calcBaseService = document.getElementById("calc-base-service");
+            const calcDurationRadios = document.querySelectorAll('input[name="calc-duration"]');
+            const calcAddonChecks = document.querySelectorAll('input[name="calc-addon"]');
+            const calcDistanceRadios = document.querySelectorAll('input[name="calc-distance"]');
+            const calcCouponInput = document.getElementById("calc-coupon-input");
+            const calcCouponBtn = document.getElementById("calc-coupon-btn");
+            const calcCouponMsg = document.getElementById("calc-coupon-msg");
+            
+            const calcGrandTotal = document.getElementById("calc-grand-total");
+            const calcReceiptServiceName = document.getElementById("calc-receipt-service-name");
+            const calcReceiptServicePrice = document.getElementById("calc-receipt-service-price");
+            const calcReceiptDurRow = document.getElementById("calc-receipt-dur-row");
+            const calcReceiptDurName = document.getElementById("calc-receipt-dur-name");
+            const calcReceiptDurPrice = document.getElementById("calc-receipt-dur-price");
+            const calcReceiptAddonsRow = document.getElementById("calc-receipt-addons-row");
+            const calcReceiptAddonsList = document.getElementById("calc-receipt-addons-list");
+            const calcReceiptDiscountRow = document.getElementById("calc-receipt-discount-row");
+            const calcReceiptDiscountVal = document.getElementById("calc-receipt-discount-val");
+            const calcReceiptCouponLabel = document.getElementById("calc-receipt-coupon-label");
+            const calcOrderSubmitBtn = document.getElementById("calc-order-submit-btn");
+
+            let activeDiscountVal = 0;
+            let activeDiscountType = "none"; // "flat" or "percent"
+            let activeCouponCode = "";
+
+            function recalculateTariff() {
+                if (!calcBaseService) return;
+
+                // 1. Base Service Price
+                const baseVal = parseInt(calcBaseService.value) || 0;
+                const baseOption = calcBaseService.options[calcBaseService.selectedIndex];
+                const baseServiceName = baseOption.getAttribute("data-name") || "Massage Premium";
+                if (calcReceiptServiceName) calcReceiptServiceName.textContent = baseServiceName;
+                if (calcReceiptServicePrice) calcReceiptServicePrice.textContent = "Rp " + baseVal.toLocaleString("id-ID");
+
+                // 2. Extra Duration Price
+                let durationVal = 0;
+                let durationLabelText = "Normal (60m)";
+                calcDurationRadios.forEach(radio => {
+                    const labelId = "calc-dur-" + radio.value;
+                    const labelEl = document.getElementById(labelId);
+                    if (radio.checked) {
+                        durationVal = parseInt(radio.value) || 0;
+                        if (radio.value === "45000") {
+                            durationLabelText = "Durasi Ekstra +30m";
+                        } else if (radio.value === "80000") {
+                            durationLabelText = "Durasi Ekstra +60m";
+                        }
+                        if (labelEl) {
+                            labelEl.className = "relative flex items-center justify-center p-3 border-2 border-mintGreen bg-mintGreen/5 rounded-xl cursor-pointer text-center select-none transition group";
+                            const txt = labelEl.querySelector("span");
+                            if (txt) txt.className = "text-xs font-extrabold text-navyPrimary group-hover:text-mintGreen transition";
+                        }
+                    } else {
+                        if (labelEl) {
+                            labelEl.className = "relative flex items-center justify-center p-3 border-2 border-slate-150 bg-white rounded-xl cursor-pointer text-center select-none transition group";
+                            const txt = labelEl.querySelector("span");
+                            if (txt) txt.className = "text-xs font-bold text-slate-500 group-hover:text-navyPrimary transition";
+                        }
+                    }
+                });
+
+                if (calcReceiptDurRow) {
+                    if (durationVal > 0) {
+                        calcReceiptDurRow.classList.remove("hidden");
+                        if (calcReceiptDurName) calcReceiptDurName.textContent = durationLabelText;
+                        if (calcReceiptDurPrice) calcReceiptDurPrice.textContent = "Rp " + durationVal.toLocaleString("id-ID");
+                    } else {
+                        calcReceiptDurRow.classList.add("hidden");
+                    }
+                }
+
+                // 3. Addon Price Sum
+                let addonValSum = 0;
+                if (calcReceiptAddonsList) calcReceiptAddonsList.innerHTML = "";
+                let addonsSelectedList = [];
+
+                calcAddonChecks.forEach(check => {
+                    const rowContainer = check.closest("label");
+                    if (check.checked) {
+                        const val = parseInt(check.value) || 0;
+                        const addonName = check.getAttribute("data-name") || "Addon";
+                        addonValSum += val;
+                        addonsSelectedList.push({ name: addonName, price: val });
+                        
+                        if (rowContainer) {
+                            rowContainer.className = "flex items-center gap-3 p-3 bg-mintGreen/5 border-2 border-mintGreen rounded-xl cursor-pointer hover:border-mintGreen/40 hover:bg-emerald-50/10 transition select-none";
+                        }
+                    } else {
+                        if (rowContainer) {
+                            rowContainer.className = "flex items-center gap-3 p-3 bg-white border border-slate-150 rounded-xl cursor-pointer hover:border-mintGreen/40 hover:bg-emerald-50/10 transition select-none";
+                        }
+                    }
+                });
+
+                if (calcReceiptAddonsRow) {
+                    if (addonsSelectedList.length > 0) {
+                        calcReceiptAddonsRow.classList.remove("hidden");
+                        if (calcReceiptAddonsList) {
+                            addonsSelectedList.forEach(item => {
+                                const adRow = document.createElement("div");
+                                adRow.className = "flex justify-between";
+                                adRow.innerHTML = `<span>• ${item.name}</span> <span class="font-bold">Rp ${item.price.toLocaleString("id-ID")}</span>`;
+                                calcReceiptAddonsList.appendChild(adRow);
+                            });
+                        }
+                    } else {
+                        calcReceiptAddonsRow.classList.add("hidden");
+                    }
+                }
+
+                // 4. Transport setup (always 0 thanks to promo)
+                calcDistanceRadios.forEach((radio, idx) => {
+                    const idNum = idx + 1;
+                    const labelEl = document.getElementById("calc-dist-" + idNum);
+                    if (radio.checked) {
+                        if (labelEl) {
+                            labelEl.className = "relative flex flex-col items-center p-2.5 border-2 border-mintGreen bg-mintGreen/5 rounded-xl cursor-pointer text-center select-none transition";
+                            const txt = labelEl.querySelector("span");
+                            if (txt) txt.className = "text-[11px] font-extrabold text-navyPrimary";
+                        }
+                    } else {
+                        if (labelEl) {
+                            labelEl.className = "relative flex flex-col items-center p-2.5 border-2 border-slate-150 bg-white rounded-xl cursor-pointer text-center select-none transition";
+                            const txt = labelEl.querySelector("span");
+                            if (txt) txt.className = "text-[11px] font-bold text-slate-500";
+                        }
+                    }
+                });
+
+                // Compute Subtotals and Coupons
+                const subtotal = baseVal + durationVal + addonValSum;
+                let discountAmt = 0;
+                if (activeDiscountType === "flat") {
+                    discountAmt = activeDiscountVal;
+                } else if (activeDiscountType === "percent") {
+                    discountAmt = Math.round(subtotal * (activeDiscountVal / 100));
+                }
+
+                if (discountAmt > subtotal) {
+                    discountAmt = subtotal;
+                }
+
+                let finalTotal = subtotal - discountAmt;
+                if (finalTotal < 0) finalTotal = 0;
+
+                // Update receipt fields
+                if (calcReceiptDiscountRow) {
+                    if (discountAmt > 0) {
+                        calcReceiptDiscountRow.classList.remove("hidden");
+                        if (calcReceiptCouponLabel) calcReceiptCouponLabel.textContent = "Kupon " + activeCouponCode;
+                        if (calcReceiptDiscountVal) calcReceiptDiscountVal.textContent = "- Rp " + discountAmt.toLocaleString("id-ID");
+                    } else {
+                        calcReceiptDiscountRow.classList.add("hidden");
+                    }
+                }
+
+                if (calcGrandTotal) {
+                    calcGrandTotal.textContent = "Rp " + finalTotal.toLocaleString("id-ID");
+                }
+
+                return {
+                    serviceVal: baseVal,
+                    serviceName: baseServiceName,
+                    durationVal: durationVal,
+                    addonsVal: addonValSum,
+                    addonsList: addonsSelectedList,
+                    discountVal: discountAmt,
+                    totalVal: finalTotal
+                };
+            }
+
+            if (calcBaseService) {
+                calcBaseService.addEventListener("change", recalculateTariff);
+                calcDurationRadios.forEach(rad => rad.addEventListener("change", recalculateTariff));
+                calcAddonChecks.forEach(chk => chk.addEventListener("change", recalculateTariff));
+                calcDistanceRadios.forEach(rad => rad.addEventListener("change", recalculateTariff));
+
+                // Coupon click action helper
+                if (calcCouponBtn) {
+                    calcCouponBtn.addEventListener("click", function() {
+                        const code = calcCouponInput.value.trim().toUpperCase();
+                        if (calcCouponMsg) {
+                            calcCouponMsg.classList.remove("hidden", "text-red-500", "text-green-500");
+                            if (!code) {
+                                calcCouponMsg.textContent = "Silakan isi kode promo terlebih dahulu.";
+                                calcCouponMsg.classList.add("text-red-500");
+                                return;
+                            }
+                        }
+
+                        if (code === "PIJATHALAL") {
+                            activeDiscountVal = 15000;
+                            activeDiscountType = "flat";
+                            activeCouponCode = "PIJATHALAL";
+                            if (calcCouponMsg) {
+                                calcCouponMsg.textContent = "Kupon Terpasang! Potongan Rp 15.000 sukses diaplikasikan.";
+                                calcCouponMsg.classList.add("text-green-500");
+                            }
+                        } else if (code === "SEHATBARU") {
+                            activeDiscountVal = 15; // 15%
+                            activeDiscountType = "percent";
+                            activeCouponCode = "SEHATBARU";
+                            if (calcCouponMsg) {
+                                calcCouponMsg.textContent = "Kupon Terpasang! Potongan diskaun 15% sukses diaplikasikan.";
+                                calcCouponMsg.classList.add("text-green-500");
+                            }
+                        } else if (code === "BUGARNYAMAN" || code === "PIJATKUY") {
+                            activeDiscountVal = 20000;
+                            activeDiscountType = "flat";
+                            activeCouponCode = code;
+                            if (calcCouponMsg) {
+                                calcCouponMsg.textContent = "Kupon Terpasang! Potongan Rp 20.000 sukses diaplikasikan.";
+                                calcCouponMsg.classList.add("text-green-500");
+                            }
+                        } else {
+                            activeDiscountVal = 0;
+                            activeDiscountType = "none";
+                            activeCouponCode = "";
+                            if (calcCouponMsg) {
+                                calcCouponMsg.textContent = "Maaf, kode promo tidak valid atau telah kedaluwarsa.";
+                                calcCouponMsg.classList.add("text-red-500");
+                            }
+                        }
+                        recalculateTariff();
+                    });
+                }
+
+                // Initial trigger
+                recalculateTariff();
+            }
+
+            // Estimator button Order integration to booking form
+            if (calcOrderSubmitBtn) {
+                calcOrderSubmitBtn.addEventListener("click", function() {
+                    const estimate = recalculateTariff();
+                    
+                    // Match first available therapist who is free (state 0)
+                    let targetBtn = null;
+                    const allPesanBtns = document.querySelectorAll(".pesan-btn");
+                    for (let btn of allPesanBtns) {
+                        try {
+                            const parentCard = btn.closest(".therapist-card");
+                            if (parentCard) {
+                                const id = btn.getAttribute("data-id");
+                                if (therapistStates[id] === 0) { // Tersedia
+                                    targetBtn = btn;
+                                    break;
+                                }
+                            }
+                        } catch(e) {}
+                    }
+                    if (!targetBtn && allPesanBtns.length > 0) {
+                        targetBtn = allPesanBtns[0];
+                    }
+
+                    if (targetBtn) {
+                        // Open native booking modal
+                        openBooking(targetBtn);
+                        
+                        // Prefill service selector dropdown
+                        if (modalServiceSelect) {
+                            modalServiceSelect.value = calcBaseService.value;
+                        }
+                        
+                        // Override displayed checkout price to reflect estimate extras
+                        if (modalPriceDisplay) {
+                            let extraLabels = [];
+                            if (estimate.durationVal > 0) extraLabels.push("Ekstra Durasi");
+                            if (estimate.addonsVal > 0) extraLabels.push("Addon Terapi");
+                            if (estimate.discountVal > 0) extraLabels.push("Kupon Potongan");
+                            
+                            const subtitleStr = extraLabels.join(" + ") || "Sesi Pilihan Standar";
+                            modalPriceDisplay.innerHTML = `
+                                <div class="text-right">
+                                    <span class="block text-xl font-bold font-mono text-mintGreen">Rp ${estimate.totalVal.toLocaleString("id-ID")}</span>
+                                    <span class="block text-[9px] text-slate-400 font-bold font-sans">${subtitleStr} (Total Kalkulator Kustom)</span>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        alert("Mohon maaf, terapis kami sedang sibuk saat ini. Silakan hubungi hotline pusat.");
+                    }
+                });
+            }
+
+            // 3.8 Testimonial Star Picker and Dynamic Feedback Poster
+            const formStarBtns = document.querySelectorAll(".form-star-btn");
+            const reviewStarLabel = document.getElementById("review-star-label");
+            const reviewNameInput = document.getElementById("review-name-input");
+            const reviewJobInput = document.getElementById("review-job-input");
+            const reviewTextInput = document.getElementById("review-text-input");
+            const reviewSubmitBtn = document.getElementById("review-submit-btn");
+
+            let selectedStarVal = 5;
+            const starReviewTitles = {
+                1: "1.0 (Kecewa)",
+                2: "2.0 (Kurang Puas)",
+                3: "3.0 (Cukup Sehat)",
+                4: "4.0 (Sangat Nyaman)",
+                5: "5.0 (Sempurna & Bugar)"
+            };
+
+            if (formStarBtns.length > 0) {
+                formStarBtns.forEach(btn => {
+                    btn.addEventListener("click", function() {
+                        const val = parseInt(btn.getAttribute("data-val")) || 5;
+                        selectedStarVal = val;
+
+                        formStarBtns.forEach(b => {
+                            const bVal = parseInt(b.getAttribute("data-val")) || 5;
+                            if (bVal <= val) {
+                                b.className = "form-star-btn text-2xl text-amber-400 focus:outline-none transition-transform scale-110";
+                            } else {
+                                b.className = "form-star-btn text-2xl text-slate-300 focus:outline-none transition-transform hover:scale-105";
+                            }
+                        });
+
+                        if (reviewStarLabel) {
+                            reviewStarLabel.textContent = starReviewTitles[val];
+                        }
+                    });
+                });
+            }
+
+            if (reviewSubmitBtn) {
+                reviewSubmitBtn.addEventListener("click", function() {
+                    const name = reviewNameInput ? reviewNameInput.value.trim() : "";
+                    const job = (reviewJobInput && reviewJobInput.value.trim()) ? reviewJobInput.value.trim() : "Pengguna Baru";
+                    const text = reviewTextInput ? reviewTextInput.value.trim() : "";
+
+                    if (!name || !text) {
+                        alert("Mohon isi dahulu mendaftaran Nama Lengkap dan ulasan Testimoni Anda.");
+                        return;
+                    }
+
+                    // Build golden symbol stars
+                    let starsSymbol = "";
+                    for (let i = 0; i < 5; i++) {
+                        if (i < selectedStarVal) starsSymbol += "★";
+                        else starsSymbol += "☆";
+                    }
+
+                    const testimonialGrid = document.querySelector("#testimoni .grid");
+                    if (testimonialGrid) {
+                        const newCard = document.createElement("div");
+                        newCard.className = "bg-emerald-50/25 p-8 rounded-2xl border-2 border-mintGreen/30 shadow-lg flex flex-col justify-between space-y-6 opacity-0 translate-y-4 transition-all duration-700";
+                        
+                        const initials = name.slice(0, 2).toUpperCase();
+                        newCard.innerHTML = `
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-1">
+                                    <span class="text-xs font-bold text-mintGreen mr-2">${selectedStarVal.toFixed(1)}</span>
+                                    <span class="text-yellow-500">${starsSymbol}</span>
+                                    <span class="text-[9px] bg-mintGreen/15 text-mintGreen px-1.5 py-0.5 rounded font-black uppercase tracking-wider ml-1.5 animate-pulse">Ulasan Live</span>
+                                </div>
+                                <p class="text-slate-700 italic text-sm leading-relaxed font-semibold">
+                                    "${text}"
+                                </p>
+                            </div>
+                            <div class="flex items-center space-x-4 pt-4 border-t border-slate-200">
+                                <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-mintGreen to-navyPrimary flex items-center justify-center text-white font-extrabold text-sm shadow-md">
+                                    ${initials}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-navyPrimary text-sm">${name}</h4>
+                                    <p class="text-xs text-slate-400">${job} • Baru Saja</p>
+                                </div>
+                            </div>
+                        `;
+
+                        // Insert new testimonial block at the very first index
+                        testimonialGrid.insertBefore(newCard, testimonialGrid.firstChild);
+
+                        setTimeout(() => {
+                            newCard.classList.remove("opacity-0", "translate-y-4");
+                            newCard.classList.add("opacity-100", "translate-y-0");
+                        }, 50);
+
+                        // Raise custom success toast banner
+                        const toast = document.createElement("div");
+                        toast.className = "fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/90 text-white z-[9999] px-6 py-4 rounded-xl flex items-center gap-3 shadow-2xl animate-bounce text-xs max-w-sm w-[90%]";
+                        toast.innerHTML = `
+                            <span class="text-xl">✨</span>
+                            <div class="text-left font-sans">
+                                <span class="block text-mintGreen font-extrabold uppercase text-[9px] tracking-wider mb-0.5">Ulasan Tersiar Live</span>
+                                Terima kasih <strong>${name}</strong>, ulasan tulus Anda telah dimunculkan secara instan!
+                            </div>
+                        `;
+                        document.body.appendChild(toast);
+                        setTimeout(() => toast.remove(), 4000);
+
+                        // Reset form fields
+                        if (reviewNameInput) reviewNameInput.value = "";
+                        if (reviewJobInput) reviewJobInput.value = "";
+                        if (reviewTextInput) reviewTextInput.value = "";
+
+                        selectedStarVal = 5;
+                        formStarBtns.forEach(b => {
+                            b.className = "form-star-btn text-2xl text-amber-400 focus:outline-none transition-transform scale-110";
+                        });
+                        if (reviewStarLabel) reviewStarLabel.textContent = starReviewTitles[5];
+                    }
+                });
+            }
+
+            // 3.9 Interactive Contact Us Dialog Control
+            const contactNameInput = document.getElementById("contact-name-input");
+            const contactEmailInput = document.getElementById("contact-email-input");
+            const contactCategorySelect = document.getElementById("contact-category-select");
+            const contactMessageInput = document.getElementById("contact-message-input");
+            const contactSubmitBtn = document.getElementById("contact-submit-btn");
+            const contactSuccessPanel = document.getElementById("contact-success-panel");
+            const contactSuccessUser = document.getElementById("contact-success-user");
+            const contactSuccessCat = document.getElementById("contact-success-cat");
+            const contactSuccessId = document.getElementById("contact-success-id");
+            const contactResetBtn = document.getElementById("contact-reset-btn");
+
+            if (contactSubmitBtn && contactSuccessPanel) {
+                contactSubmitBtn.addEventListener("click", function() {
+                    const name = contactNameInput ? contactNameInput.value.trim() : "";
+                    const email = contactEmailInput ? contactEmailInput.value.trim() : "";
+                    const category = contactCategorySelect ? contactCategorySelect.value : "";
+                    const message = contactMessageInput ? contactMessageInput.value.trim() : "";
+
+                    if (!name || !email || !message) {
+                        alert("Mohon lengkapi bidsng Nama, Kontak, dan isi Surat Pengaduan/Kemitraan Anda.");
+                        return;
+                    }
+
+                    const ticketNum = "PK-" + Math.floor(1000 + Math.random() * 9000);
+                    if (contactSuccessUser) contactSuccessUser.textContent = name;
+                    if (contactSuccessCat) contactSuccessCat.textContent = category;
+                    if (contactSuccessId) contactSuccessId.textContent = "#" + ticketNum;
+
+                    contactSuccessPanel.classList.remove("hidden");
+                    setTimeout(() => {
+                        contactSuccessPanel.classList.remove("opacity-0");
+                        contactSuccessPanel.classList.add("opacity-100");
+                    }, 10);
+                });
+
+                if (contactResetBtn) {
+                    contactResetBtn.addEventListener("click", function() {
+                        if (contactNameInput) contactNameInput.value = "";
+                        if (contactEmailInput) contactEmailInput.value = "";
+                        if (contactMessageInput) contactMessageInput.value = "";
+                        if (contactCategorySelect) contactCategorySelect.selectedIndex = 0;
+
+                        contactSuccessPanel.classList.add("hidden");
+                    });
+                }
+            }
 
             // 4. OpenStreetMap Interactive Locator Map
             const mapContainer = document.getElementById("interactive-osm-map");
